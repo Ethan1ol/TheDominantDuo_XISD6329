@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <img src="images/logo.png" alt="Legacies Screen Printers Logo" class="nav-logo">
+      <a href="index.html">Dashboard</a>
+      <a href="customers.html">Customers</a>
+      <a href="orders.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="customers_order.html">Customer Order</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card full">
+      <h2>Orders</h2>
+      <button onclick="showOrders()">View Orders</button>
+      <div id="orderTable"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/liveOrder.js"></script>
+  <script src="js/inventory.js"></script>
+  <script>
+    showOrderTable();
+  </script>
+</body>
+</html>

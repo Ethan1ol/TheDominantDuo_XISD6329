@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <img src="images/logo.png" alt="Legacies Screen Printers Logo" class="nav-logo">
+      <a href="index.html">Dashboard</a>
+      <a href="customers.html">Customers</a>
+      <a href="orders.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="customers_order.html">Place Order</a>
+      <a href="order_search.html">Track Order</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Track Your Order</h1>
+
+    <section class="card">
+      <h2>Customer Details</h2>
+      <input id="trackName" placeholder="Full Name">
+      <input id="trackContact" placeholder="Contact Number">
+      <button onclick="searchCustomerOrders()">Search Orders</button>
+    </section>
+
+    <section class="card full">
+      <pre id="output"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+  </footer>
+
+  <script src="js/customerSearch.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+body {
+  font-family: Arial;
+  background: #0f0f10;
+  margin: 0;
+  color: #e6e6e6;
+}
+
+h1 {
+  text-align: center;
+  color: #ff7a00;
+  padding: 15px;
+}
+
+.nav {
+  background: #111;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 2px solid #ff7a00;
+}
+
+.nav a {
+  color: #ff7a00;
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 1px solid #ff7a00;
+  border-radius: 6px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  padding: 20px;
+}
+
+.card {
+  background: #1a1a1d;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #2a2a2e;
+}
+
+.card1 {
+  background: #1a1a1d;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #2a2a2e;
+}
+
+.card.full {
+  grid-column: 1 / -1;
+}
+
+h2 {
+  color: #ff7a00;
+}
+
+input{
+  width: 93%;
+  padding: 8px;
+  margin: 5px 0;
+  background: #0f0f10;
+  border: 1px solid #333;
+  color: white;
+  border-radius: 6px;
+}
+
+ select {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+  background: #0f0f10;
+  border: 1px solid #333;
+  color: white;
+  border-radius: 6px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  background: #ff7a00;
+  border: none;
+  color: #111;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #ff9a3c;
+}
+
+pre {
+  background: #0b0b0c;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.card h1{
+
+color:#ff7a00;
+
+}
+
+
+table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+
+th{
+
+color:#ff7a00;
+padding:12px;
+
+}
+
+
+td{
+
+padding:12px;
+
+border-bottom:1px solid #333;
+
+}
+
+
+.card1:hover{
+
+transform:scale(1.03);
+transition:0.3s;
+
+}
+

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <img src="images/logo.png" alt="Legacies Screen Printers Logo" class="nav-logo">
+      <a href="index.html">Dashboard</a>
+      <a href="customers.html">Customers</a>
+      <a href="orders.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="customers_order.html">Customer Order</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Order Management System</h1>
+
+    <div class="stats-grid">
+      <div>
+        <h2>Total Customers</h2>
+        <h1 id="customerCount">0</h1>
+      </div>
+
+      <div>
+        <h2>Total Orders</h2>
+        <h1 id="orderCount">0</h1>
+      </div>
+
+      <div>
+        <h2>Low Stock Items</h2>
+        <h1 id="stockCount">0</h1>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <section class="card1" onclick="location.href='customers.html'">
+        <h2>👤 Customers</h2>
+      </section>
+
+      <section class="card1" onclick="location.href='orders.html'">
+        <h2>📦 Orders</h2>
+      </section>
+
+      <section class="card1" onclick="location.href='inventory.html'">
+        <h2>📊 Inventory</h2>
+      </section>
+
+      <section class="card1" onclick="location.href='customers_order.html'">
+        <h2>🛒 Place Order</h2>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script>
+    loadDashboard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place Order - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <img src="images/logo.png" alt="Legacies Screen Printers Logo" class="nav-logo">
+      <a href="index.html">Dashboard</a>
+      <a href="customers.html">Customers</a>
+      <a href="orders.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="customers_order.html">Customer Order</a>
+      <a href="order_search.html">Track Order</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Place Order</h1>
+
+    <!-- CUSTOMER -->
+    <section class="card">
+      <h2>Customer</h2>
+      <input id="custName" placeholder="Name">
+      <input id="custContact" placeholder="Contact">
+      <input id="custEmail" placeholder="Email">
+    </section>
+
+    <!-- ORDER -->
+    <section class="card">
+      <h2>Order Details</h2>
+      <div id="designContainer">
+        <div class="designRow">
+          <h3>Design 1</h3>
+          <input class="designName" placeholder="Design Name">
+          <input type="file" class="designImage" accept="image/*">
+          <h3>Material</h3>
+          <select class="designVinyl" onchange="updateTotal()"></select>
+          <input class="designQty" type="number" placeholder="Quantity" oninput="updateTotal()">
+        </div>
+      </div>
+
+      <button onclick="addDesign()">+ Add Another Design</button>
+      <p>Total: <strong id="orderTotal">R0</strong></p>
+      <button onclick="placeOrder()">Place Order</button>
+    </section>
+
+    <section class="card full">
+      <pre id="output"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/liveOrder.js"></script>
+  <script src="js/inventory.js"></script>
+  <script>
+    loadVinylOptions();
+  </script>
+</body>
+</html>

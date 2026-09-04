@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <img src="images/logo.png" alt="Legacies Screen Printers Logo" class="nav-logo">
+      <a href="index.html">Dashboard</a>
+      <a href="customers.html">Customers</a>
+      <a href="orders.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="customers_order.html">Customer Order</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Customer Management</h1>
+
+    <!-- ADD CUSTOMER -->
+    <section class="card">
+      <h2>Add Customer</h2>
+      <input id="name" placeholder="Full Name">
+      <input id="contact" placeholder="Contact">
+      <input id="email" placeholder="Email">
+      <button onclick="addCustomer()">Add Customer</button>
+    </section>
+
+    <!-- WALK IN ORDER -->
+    <section class="card">
+      <h2>Phone / Walk-in Order</h2>
+      <h3>Customer Details</h3>
+      <input id="walkName" placeholder="Customer Name">
+      <input id="walkContact" placeholder="Contact">
+      <input id="walkEmail" placeholder="Email">
+
+      <h3>Order Details</h3>
+      <div id="designContainer">
+        <div class="designRow">
+          <h3>Design 1</h3>
+          <input class="designName" placeholder="Design Name">
+          <input type="file" class="designImage" accept="image/*">
+          <h3>Material</h3>
+          <select class="designVinyl" onchange="updateTotal()"></select>
+          <input class="designQty" type="number" placeholder="Quantity" oninput="updateTotal()">
+        </div>
+      </div>
+
+      <button onclick="addDesign()">+ Add Another Design</button>
+      <p>Total: <strong id="orderTotal">R0</strong></p>
+      <button onclick="createWalkInOrder()">Create Order</button>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="card">
+      <h2>Search Customer</h2>
+      <input id="search" placeholder="Search name">
+      <button onclick="searchCustomer()">Search</button>
+      <button onclick="showCustomersTable()">Show All</button>
+    </section>
+
+    <!-- TABLE -->
+    <section class="card full">
+      <h2>Customers</h2>
+      <div id="customerTable"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/liveOrder.js"></script>
+  <script src="js/inventory.js"></script>
+  <script>
+    window.onload = function() {
+      showCustomersTable();
+      loadVinylOptions();
+    };
+  </script>
+</body>
+</html>
