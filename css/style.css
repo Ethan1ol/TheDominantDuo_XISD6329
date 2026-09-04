@@ -1,3 +1,4 @@
+/*black background*/
 body {
   font-family: Arial;
   background: #0f0f10;
@@ -65,6 +66,7 @@ input{
   border-radius: 6px;
 }
 
+/* the selection drop down*/
  select {
   width: 100%;
   padding: 8px;
@@ -75,6 +77,7 @@ input{
   border-radius: 6px;
 }
 
+/*button sizes and colour*/
 button {
   width: 100%;
   padding: 10px;
@@ -87,6 +90,7 @@ button {
   cursor: pointer;
 }
 
+/*allows buttons to have hover view when cursor is on it*/
 button:hover {
   background: #ff9a3c;
 }
@@ -98,6 +102,7 @@ pre {
   border-radius: 8px;
 }
 
+/* makes the selectable area for inventories and other dashboard items*/
 .card h1{
 
 color:#ff7a00;
@@ -137,3 +142,28 @@ transition:0.3s;
 
 }
 
+
+/* LOGO for LEGACIESSP*/
+.nav-logo {
+height: 45px;
+width: 45px;
+border-radius: 50%;
+object-fit: cover;
+display:inline-block;
+vertical-align: middle;
+
+}
+
+.logo-cotainer {
+  display: block !important; /* forces the layout to be a certain way */
+  white-space: nowrap !important; /* doesnt allow the text to break into two lines*/
+}
+
+.logo-text{
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  font-family: sans-serif;
+  margin: 0;
+  
+}

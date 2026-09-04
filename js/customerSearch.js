@@ -1,4 +1,4 @@
-function searchCustomerOrders(){
+function searchCustomerOrders(){ //Searches the customers
     let name =
     document.getElementById("trackName").value.toLowerCase();
 

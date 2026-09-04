@@ -19,30 +19,26 @@ function display(msg) {
   let el = document.getElementById("output");
   if (el) el.innerText = msg;
 }
-// ================= DASHBOARD =================
 
-
+// DASHBOARD
 function loadDashboard(){
-
-let c = document.getElementById("customerCount");
-let o = document.getElementById("orderCount");
-let s = document.getElementById("stockCount");
-
-
-if(c)
+  let c = document.getElementById("customerCount");
+  let o = document.getElementById("orderCount");
+  let s = document.getElementById("stockCount");
+  
+  if(c)
   c.innerText = customers.length;
 
-if(o)
+  if(o)
   o.innerText = orders.length;
 
-if(s)
+  if(s)
   s.innerText = inventory.filter(i=>i.stockLevel <= 20).length;
 
 }
 
 
 /*  CUSTOMERS  */
-
 function addCustomer() {
   let name = document.getElementById("name").value;
   let contact = document.getElementById("contact").value;
@@ -137,599 +133,367 @@ function searchCustomer() {
   showCustomersTable(customers.filter(c => c.fullName.toLowerCase().includes(val)));
 }
 
+//admin is able to view customer order history
 function viewCustomerOrders(id){
+  let customer =
+  customers.find(c => c.customerId === id);
+
+  let customerOrders =
+  orders.filter(o => o.customerID === id);
+  
+  let report = `
+  CUSTOMER ORDER HISTORY
+  
+  Customer:
+  ${customer.fullName}
+  
+  Contact:
+  ${customer.contact}
+  
+  Email:
+  ${customer.email}
+  ========================
+  `;
+  
+  customerOrders.forEach(o=>{
+    
+    report += `
+    Order ID:
+    ${o.orderID}
+    
+    Item:
+    ${o.itemName}
+
+    Quantity:
+    ${o.qty}
+
+    Total:
+    R${o.total}
+
+    Status:
+    ${o.status}
+
+    Date:
+    ${o.date}
+
+    ------------------------
+
+    `;
+
+  });
 
 
-let customer =
-customers.find(c => c.customerId === id);
-
-
-
-let customerOrders =
-orders.filter(o => o.customerID === id);
-
-
-
-let report = `
-
-CUSTOMER ORDER HISTORY
-
-Customer:
-${customer.fullName}
-
-Contact:
-${customer.contact}
-
-Email:
-${customer.email}
-
-
-========================
-
-
-`;
-
-
-
-customerOrders.forEach(o=>{
-
-
-report += `
-
-Order ID:
-${o.orderID}
-
-
-Item:
-${o.itemName}
-
-
-Quantity:
-${o.qty}
-
-
-Total:
-R${o.total}
-
-
-Status:
-${o.status}
-
-
-Date:
-${o.date}
-
-
-------------------------
-
-`;
-
-});
-
-
-display(report);
-
-
+  display(report);
 }
 
 
-/* ================= ORDERS ================= */
-
+//shows order history to 
 function showOrders(){
+  let report = "";
+  orders.forEach(o => {
+    
+    report +=
+    `
+    ========================
 
+    Order ID:
+    ${o.orderID}
 
-let report = "";
+    Customer:
+    ${o.customerName}
 
+    Contact:
+    ${o.contact}
 
+    Item:
+    ${o.itemName}
 
-orders.forEach(o => {
+    Quantity:
+    ${o.qty}
 
+    Total:
+    R${o.total}
 
-report +=
-`
-========================
+    Status:
+    ${o.status}
 
-Order ID:
-${o.orderID}
+    Date:
+    ${o.date}
 
-
-Customer:
-${o.customerName}
-
-
-Contact:
-${o.contact}
-
-
-Item:
-${o.itemName}
-
-
-Quantity:
-${o.qty}
-
-
-Total:
-R${o.total}
-
-
-Status:
-${o.status}
-
-
-Date:
-${o.date}
-
-
-========================
-
-`;
-
-});
-
-
-display(report);
-
-
+    ========================
+    `;
+  });
+  
+  display(report);
 }
 
+//allows admin to order status and actions that can be taken and updates it
 function showOrderTable(){
 
+  let html = `
+  <table>
+  <tr>
+  
+  <th>Order</th>
+  <th>Customer</th>
+  <th>Total</th>
+  <th>Status</th>
+  <th>Action</th>
+  </tr>
+  `;
+  
+  orders.forEach(o=>{
+    html+=`
+    
+    <tr>
+    
+    <td>${o.orderID}</td>
+    
+    <td>${o.customerName}</td>
+    
+    <td>R${o.total}</td>
+    
+    <td>${o.status}</td>
 
-let html = `
-<table>
-
-<tr>
-
-<th>Order</th>
-<th>Customer</th>
-<th>Total</th>
-<th>Status</th>
-<th>Action</th>
-
-</tr>
-
-`;
-
-
-orders.forEach(o=>{
-
-
-html+=`
-
-<tr>
-
-<td>${o.orderID}</td>
-
-<td>${o.customerName}</td>
-
-<td>R${o.total}</td>
-
-<td>${o.status}</td>
-
-
-<td>
-
-
-<button onclick="changeStatus('${o.orderID}','Processing')">
-
-Processing
-
-</button>
-
-
-
-<button onclick="changeStatus('${o.orderID}','Completed')">
-
-Completed
-
-</button>
-
-
-</td>
-
-
-</tr>
-
-
-`;
-
-});
-
-
-html+="</table>";
-
-
-document.getElementById("orderTable").innerHTML=html;
-
-
+    <td>
+    
+    <button onclick="changeStatus('${o.orderID}','Processing')">
+    
+    Processing
+    </button>
+    
+    <button onclick="changeStatus('${o.orderID}','Completed')">
+    
+    Completed
+    
+    </button>
+    </td>
+    </tr>`;
+  });
+  
+  html+="</table>";
+  document.getElementById("orderTable").innerHTML=html;
 }
 
 
 
-
+//allows the admin to change the order status
 function changeStatus(id,status){
+  
+  let order =
+  orders.find(o=>o.orderID===id);
+  order.status=status;
 
-
-let order =
-orders.find(o=>o.orderID===id);
-order.status=status;
-
-
-save();
-showOrderTable();
+  save();
+  showOrderTable();
 }
 
 
 
-/*  CUSTOMER ORDER  */
-
+// CUSTOMER ORDER allows customers place orders
 async function placeOrder(){
-
-
-let name =
-document.getElementById("custName").value;
-
-
-let contact =
-document.getElementById("custContact").value;
-
-
-let email =
-document.getElementById("custEmail").value;
-
-
-
-if(!name || !contact){
-
-alert("Enter customer details");
-
-return;
-
-}
-
-
-
-
-// find existing customer
-
-let customer =
-customers.find(c => c.contact === contact);
-
-
-
-if(!customer){
-
-
-customer = {
-
-
-customerId:
-"CUS"+Math.floor(1000+Math.random()*9000),
-
-
-fullName:name,
-
-
-contact:contact,
-
-
-email:email
-
-
-};
-
-
-
-customers.push(customer);
-
-
-}
-
-
-
-
-
-let rows =
-document.querySelectorAll(".designRow");
-
-
-
-let orderItems = [];
-
-
-
-let total = 0;
-
-
-
-
-for(let row of rows){
-
-
-
-let designName =
-row.querySelector(".designName").value;
-
-
-
-let vinylID =
-row.querySelector(".designVinyl").value;
-
-
-
-let qty =
-Number(row.querySelector(".designQty").value);
-
-
-
-let item =
-inventory.find(i => i.itemId === vinylID);
-
-
-
-
-if(!designName || !item || qty <= 0){
-
-
-alert("Complete all design details");
-
-
-return;
-
-
-}
-
-
-
-
-if(item.stockLevel < qty){
-
-
-alert("Not enough stock for "+item.itemName);
-
-
-return;
-
-
-}
-
-
-
-
-let design = {
-
-
-designID:
-"DES"+Math.floor(1000+Math.random()*9000),
-
-
-designName:designName,
-
-
-vinyl:item.itemName,
-
-
-quantity:qty,
-
-
-price:item.price,
-
-
-total:qty * item.price
-
-
-};
-
-
-
-
-orderItems.push(design);
-
-
-
-item.stockLevel -= qty;
-
-
-
-total += design.total;
-
-
-
-}
-
-
-
-
-let order = {
-
-
-orderID:
-"ORD"+Math.floor(1000+Math.random()*9000),
-
-
-customerID:
-customer.customerId,
-
-
-customerName:
-customer.fullName,
-
-
-contact:
-customer.contact,
-
-
-items:
-orderItems,
-
-
-total:total,
-
-
-status:"Pending",
-
-
-date:
-new Date().toLocaleDateString()
-
-
-};
-
-
-
-
-
-orders.push(order);
-
-
-
-save();
-
-
-
-
-display(`
-
-ORDER PLACED SUCCESSFULLY
-
-
-Order Reference:
-
-${order.orderID}
-
-
-
-Customer:
-
-${customer.fullName}
-
-
-
-Total:
-
-R${order.total}
-
-
-
-Status:
-
-${order.status}
-
-
-
-Designs:
-
-${order.items.length}
-
-
-`);
-
-
-
-
-updateTotal();
-
-
+  let name = document.getElementById("custName").value;
+  let contact = document.getElementById("custContact").value;
+  let email = document.getElementById("custEmail").value;
+  
+  if(!name || !contact){
+    alert("Enter customer details");
+    return;
+  }
+  
+  // find existing customer
+  let customer = customers.find(c => c.contact === contact);
+  if(!customer){
+    
+    customer = {
+      customerId:
+      "CUS"+Math.floor(1000+Math.random()*9000),
+      
+      fullName:name,
+      
+      contact:contact,
+
+      email:email
+    };
+    
+    customers.push(customer);
+  }
+  
+  let rows =
+  document.querySelectorAll(".designRow");
+
+  let orderItems = [];
+
+  let total = 0;
+
+  for(let row of rows){
+
+    let designName =
+    row.querySelector(".designName").value;
+
+    let vinylID =
+    row.querySelector(".designVinyl").value;
+
+    let qty =
+    Number(row.querySelector(".designQty").value);
+
+    let item =
+    inventory.find(i => i.itemId === vinylID);
+
+    if(!designName || !item || qty <= 0){
+      alert("Complete all design details");
+      return;
+    }
+    
+    if(item.stockLevel < qty){
+      alert("Not enough stock for "+item.itemName);
+      return;
+    }
+
+    let design = {
+      designID:
+      "DES"+Math.floor(1000+Math.random()*9000),
+      
+      designName:designName,
+      
+      vinyl:item.itemName,
+      
+      quantity:qty,
+      
+      price:item.price,
+      
+      total:qty * item.price
+    
+    };
+    
+    
+    orderItems.push(design);
+    
+    item.stockLevel -= qty;
+    
+    total += design.total;
+  }
+  
+  let order = {
+    orderID:
+    "ORD"+Math.floor(1000+Math.random()*9000),
+    
+    customerID:
+    customer.customerId,
+    
+    customerName:
+    customer.fullName,
+    
+    contact:
+    customer.contact,
+
+    items:
+    orderItems,
+
+    total:total,
+    status:"Pending",
+
+    date:
+    new Date().toLocaleDateString()
+  };
+  
+  orders.push(order);
+  save();
+  
+  display(`
+    
+    ORDER PLACED SUCCESSFULLY
+    
+    Order Reference:
+    ${order.orderID}
+
+
+    Customer:
+    ${customer.fullName}
+    
+    Total:
+    R${order.total}
+    
+    Status:
+    ${order.status}
+
+    Designs:
+    ${order.items.length}
+    `);
+    
+    updateTotal();
 }
 
 
 function changeOrderType(){
-
-let type =document.getElementById("orderSource").value;
-
-if(type==="Admin"){
-  document.getElementById("newCustomer").style.display="none";
-  document.getElementById("existingCustomer").style.display="block";
-
-loadCustomerDropdown();
-
-
-}
-else{
-  document.getElementById("newCustomer").style.display="block";
-  document.getElementById("existingCustomer").style.display="none";
-}
+  
+  let type =document.getElementById("orderSource").value;
+  
+  if(type==="Admin"){
+    document.getElementById("newCustomer").style.display="none";
+    document.getElementById("existingCustomer").style.display="block";
+    loadCustomerDropdown();
+  }
+  
+  else{
+    document.getElementById("newCustomer").style.display="block";
+    document.getElementById("existingCustomer").style.display="none";
+  }
 }
 
 
 
-/* ================= DROPDOWNS ================= */
+// DROPDOWNS 
 
 function updateDropdowns() {
 
+  let walk = document.getElementById("walkItem");
+  let customerItem = document.getElementById("itemSelect");
+  
+  if(walk){
+    walk.innerHTML = "";
+    inventory.forEach(i=>{
+      let opt = document.createElement("option");
+      opt.value = i.itemId;
+      
+      opt.textContent =
+      `${i.itemName} (Stock: ${i.stockLevel})`;
+      
+      walk.appendChild(opt);
+    });
+  }
 
-let walk = document.getElementById("walkItem");
+  if(customerItem){
+    customerItem.innerHTML = "";
+    inventory.forEach(i=>{
 
+      let opt = document.createElement("option");
+      opt.value = i.itemId;
+      opt.textContent =`${i.itemName} (Stock: ${i.stockLevel})`;
 
-let customerItem = document.getElementById("itemSelect");
-
-
-
-if(walk){
-
-
-walk.innerHTML = "";
-
-
-inventory.forEach(i=>{
-
-
-let opt = document.createElement("option");
-
-
-opt.value = i.itemId;
-
-
-opt.textContent =
-`${i.itemName} (Stock: ${i.stockLevel})`;
-
-
-walk.appendChild(opt);
-});
-}
-
-if(customerItem){
-
-customerItem.innerHTML = "";
-inventory.forEach(i=>{
-
-
-let opt = document.createElement("option");
-opt.value = i.itemId;
-opt.textContent =`${i.itemName} (Stock: ${i.stockLevel})`;
-
-
-customerItem.appendChild(opt);
-});
-}
+      customerItem.appendChild(opt);
+    });
+  }
 }
 
 
 function loadCustomerDropdown(){
-  
+
   let select = document.getElementById("customerSelect");
-  
   select.innerHTML="";
-  
   customers.forEach(c=>{
     let option = document.createElement("option");
-
-
-option.value=c.customerId;
-option.textContent=c.fullName;
-
-select.appendChild(option);
-});
+    option.value=c.customerId;
+    option.textContent=c.fullName;
+    
+    select.appendChild(option);
+  });
 }
 
-/* ================= INIT ================= */
+// INIT 
 
 window.onload = function(){
-
-updateDropdowns();
-
-updatePrice();
-
+  updateDropdowns();
+  updatePrice();
 };
 

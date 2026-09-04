@@ -1,9 +1,6 @@
-/* ================= INVENTORY ================= */
-
+//INVENTORY 
 function showInventory() {
-
   let report = "";
-
   report += "INVENTORY REPORT\n";
   report += "========================\n\n";
 
@@ -23,13 +20,14 @@ function showInventory() {
   display(report);
 }
 
-
+//Shows the stocks 
 function showStockChart() {
   display(inventory.map(i =>
     `${i.itemName}: ${"█".repeat(i.stockLevel / 10)}`
   ).join("\n"));
 }
 
+//shows amount of stock categories that are low
 function lowStockReport(){
   
   let report=
@@ -39,139 +37,91 @@ function lowStockReport(){
   .filter(i=>i.stockLevel<=20)
   .forEach(i=>{
 
+    report+=
+    `
+    Item:
+    ${i.itemName}
 
-report+=
-`
-Item:
-${i.itemName}
+    Current Stock:
+    ${i.stockLevel}
 
-Current Stock:
-${i.stockLevel}
+    ----------------
 
-----------------
+    `;});
+    display(report);
 
-`;});
-display(report);
-
-}
+  }
 
 // INVENTORY MANAGEMENT
-
-
 function showInventoryTable(){
   let html = `
-  <table>
+    <table>
+    <tr>
 
-  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Stock</th>
+    <th>Price</th>
+    <th>Actions</th>
+    </tr>
 
-  <th>ID</th>
+    `;
+    
+    inventory.forEach(i=>{
 
-  <th>Name</th>
-  
-  <th>Stock</th>
-
-  <th>Price</th>
-
-  <th>Actions</th>
-
-  </tr>
-
-`;
-
-
-
-inventory.forEach(i=>{
-
-
-html +=
-
-`
-
-<tr>
-
-
-<td>${i.itemId}</td>
-
-
-<td>${i.itemName}</td>
-
-
-<td>${i.stockLevel}</td>
-
-
-<td>R${i.price}</td>
-
-
-
-<td>
-
-
-<button onclick="editInventory('${i.itemId}')">
-
-Edit
-
-</button>
-
-
-
-<button onclick="deleteInventory('${i.itemId}')">
-
-Delete
-
-</button>
-
-
-</td>
-
-
-</tr>
-
-`;
-
-});
-
-
-html += "</table>";
-document.getElementById("inventoryTable").innerHTML = html;
-
-
+      html +=
+      `
+      <tr>
+      
+      <td>${i.itemId}</td>
+      <td>${i.itemName}</td>
+      <td>${i.stockLevel}</td>
+      <td>R${i.price}</td>
+      <td>
+      
+      <button onclick="editInventory('${i.itemId}')">
+      Edit
+      </button>
+      
+      <button onclick="deleteInventory('${i.itemId}')">
+      Delete
+      </button>
+      
+      </td>
+      </tr>
+      `;
+    });
+    
+    html += "</table>";
+    document.getElementById("inventoryTable").innerHTML = html;
 }
 
 
 
-
+//Allows admin to add new items to the inventory
 function addInventory(){
   let name = document.getElementById("itemName").value;
   let stock = Number(document.getElementById("stockLevel").value);
   let price = Number(document.getElementById("itemPrice").value);
 
-let item = {
-  itemId:"INV"+Math.floor(1000 + Math.random() * 9000),
+  let item = {
+
+    itemId:"INV"+Math.floor(1000 + Math.random() * 9000),
   
-  itemName:name,
+    itemName:name,
   
-  stockLevel:stock,
+    stockLevel:stock,
   
-  price:price
+    price:price
+  };
 
-};
-
-
-
-inventory.push(item);
-
-save();
-
-showInventoryTable();
-
-alert("Inventory added");
-
-
+  inventory.push(item);
+  save();
+  showInventoryTable();
+  alert("Inventory added");
 }
 
-
-
-
+//Allows admin to edit already existing inventory
 function editInventory(id){
   let item = inventory.find(i=>i.itemId===id);
   let stock =
@@ -180,72 +130,44 @@ function editInventory(id){
     item.stockLevel
   );
 
-
-
-let price =
-prompt(
-  "Update Price",
-  item.price
-);
-
-
-
-item.stockLevel =
-Number(stock);
-
-item.price =
-Number(price);
-
-save();
-showInventoryTable();
+  let price =
+  prompt(
+    "Update Price",
+    item.price
+  );
+  
+  item.stockLevel =
+  Number(stock);
+  
+  item.price =
+  Number(price);
+  
+  save();
+  showInventoryTable();
 }
 
 function deleteInventory(id){
-inventory = inventory.filter(i=>i.itemId !== id);
-save();
-showInventoryTable();
-
-
+  inventory = inventory.filter(i=>i.itemId !== id);
+  save();
+  showInventoryTable();
 }
 
-//Upload image
+
+//Upload vinyl design
 function uploadDesignImage(inputID){
-
-return new Promise((resolve)=>{
-
-
-let file =
-document.getElementById(inputID).files[0];
-
-
-if(!file){
-
-resolve(null);
-
-return;
-
-}
-
-
-let reader = new FileReader();
-
-
-
-reader.onload = function(e){
-
-
-resolve(e.target.result);
-
-
-};
-
-
-
-reader.readAsDataURL(file);
-
-
-
-});
-
-
+  return new Promise((resolve)=>{
+    let file =
+    document.getElementById(inputID).files[0];
+    if(!file){
+      resolve(null);
+      return;
+    }
+    
+    let reader = new FileReader();
+    reader.onload = function(e){
+      resolve(e.target.result);
+    };
+    
+    reader.readAsDataURL(file);
+  });
 }
