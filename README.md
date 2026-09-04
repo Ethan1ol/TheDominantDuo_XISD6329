@@ -1,1 +1,5 @@
-# TheDominantDuo_XISD6329
+#Legacies Screen Printers Management System
+This web application is built to help Legacies Screen Printers move away from manual paper records and centralise customer orders and vinyl stock.
+The system solves workflow delays by securely storing customer details, order information, and vinyl material usage in a central database. The workshop dashboard gives the business owner live counts for total customers, total orders, and low-stock inventory alerts. The owner can easily capture walk-in and phone orders, select available materials, calculate totals, and submit jobs directly into production.
+An orders management interface allows the owner to track print queues and update job progress from pending to processing and completed. The inventory management module allows the owner to add consumable items, adjust stock counts, and monitor threshold levels for restocking. Customers can use the online portal to submit multi-design print orders, upload custom artwork files, and pick specific vinyl rolls.
+A self-service order tracking tool allows customers to check real-time progress using their contact details, reducing constant phone enquiries. To run the system, open index.html in any standard web browser or run the project through a local web server environment.
