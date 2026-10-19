@@ -1,70 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Legacies Screen Printers</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Legacies Screen Printers</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-color: #0b0b0e;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background-color: #121217;
+            border-bottom: 1px solid #1f1f26;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .nav-links a {
+            color: #b0b0c0;
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: #ff7700;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+        h1.title {
+            text-align: center;
+            color: #ff7700;
+            font-size: 2.2rem;
+            margin-bottom: 36px;
+            font-weight: 800;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background-color: #16161d;
+            border: 1px solid #23232e;
+            border-radius: 14px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .stat-card .label {
+            color: #8c8c9e;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .stat-card .value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .nav-card {
+            background-color: #16161d;
+            border: 1px solid #23232e;
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            text-decoration: none;
+            color: #ff7700;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
+        }
+        .nav-card:hover {
+            transform: translateY(-2px);
+            background-color: #1d1d26;
+            border-color: #ff7700;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555566;
+            font-size: 0.85rem;
+            border-top: 1px solid #17171e;
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
-    </div>
+    <header class="navbar">
+        <div class="logo-area">
+            <span style="display:inline-block; width: 24px; height: 24px; border-radius: 50%; background: #2ecc71;"></span>
+            Legacies Screen Printers
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="customers.html">Customers</a>
+            <a href="orders.html">Orders</a>
+            <a href="inventory.html">Inventory</a>
+        </nav>
+    </header>
 
-    <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="customers.html">Customers</a>
-      <a href="orders.html">Orders</a>
-      <a href="inventory.html">Inventory</a>
-    </nav>
-  </header>
+    <main class="container">
+        <h1 class="title">Order Management System</h1>
 
-    <h1>Order Management System</h1>
+        <!-- Summary Metric Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Customers</div>
+                <div class="value" id="statCustomers">...</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Orders</div>
+                <div class="value" id="statOrders">...</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Low Stock Items</div>
+                <div class="value" id="statLowStock">...</div>
+            </div>
+        </div>
 
-  <main class="container dashboard-container">
-  
-    <div class="stats-grid">
-      <div>
-        <h2>Total Customers</h2>
-        <h1 id="customerCount">0</h1>
-      </div>
+        <!-- Navigation Buttons -->
+        <div class="nav-grid">
+            <a href="customers.html" class="nav-card">
+                <span>👤</span> Customers
+            </a>
+            <a href="orders.html" class="nav-card">
+                <span>📦</span> Orders
+            </a>
+            <a href="inventory.html" class="nav-card">
+                <span>📊</span> Inventory
+            </a>
+        </div>
+    </main>
 
-      <div>
-        <h2>Total Orders</h2>
-        <h1 id="orderCount">0</h1>
-      </div>
+    <footer>
+        &copy; 2026 Legacies Screen Printers. All Rights Reserved.
+    </footer>
 
-      <div>
-        <h2>Low Stock Items</h2>
-        <h1 id="stockCount">0</h1>
-      </div>
-    </div>
-
-    <div class="cards-grid">
-      <section class="card1" onclick="location.href='customers.html'">
-        <h2>👤 Customers</h2>
-      </section>
-
-      <section class="card1" onclick="location.href='orders.html'">
-        <h2>📦 Orders</h2>
-      </section>
-
-      <section class="card1" onclick="location.href='inventory.html'">
-        <h2>📊 Inventory</h2>
-      </section>
-
-    </div>
-  </main>
-
-  <footer>
-    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
-  </footer>
-
-  <script src="js/script.js"></script>
-  <script>
-    loadDashboard();
-  </script>
+    <script src="js/script.js"></script>
 </body>
 </html>

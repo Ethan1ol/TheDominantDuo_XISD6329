@@ -1,52 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventory Management - Legacies Screen Printers</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Legacies Screen Printers</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Table styles tailored to match the dark theme */
+        .inventory-card {
+            background-color: #1e1e24;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px auto;
+            max-width: 1100px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .inventory-card h2 {
+            color: #ff7700;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            color: #e0e0e0;
+            text-align: left;
+        }
+        .styled-table thead tr {
+            background-color: #2b2b36;
+            color: #ff9933;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+        .styled-table th, .styled-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #33333f;
+        }
+        .styled-table tbody tr:hover {
+            background-color: #262633;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-instock {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+        .badge-lowstock {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .nav-header {
+            max-width: 1100px;
+            margin: 20px auto 10px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-header a {
+            color: #ff7700;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        .nav-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body>
+<body style="background-color: #121216; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px;">
 
-  <header>
-    <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
+    <div class="nav-header">
+        <h1 style="color: #ff7700; margin: 0;">Inventory Management</h1>
+        <div>
+            <a href="orders.html">Orders</a>
+            <a href="order_search.html">Track Order</a>
+            <a href="customers_order.html">Place Order</a>
+        </div>
     </div>
- 
-    <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="customers.html">Customers</a>
-      <a href="orders.html">Orders</a>
-      <a href="inventory.html">Inventory</a>
-    </nav>
-  </header>
 
-  <h1>Inventory Management</h1>
-  <main class="container">
+    <!-- Current Inventory Table -->
+    <div class="inventory-card">
+        <h2>Current Inventory</h2>
+        <div style="overflow-x: auto;">
+            <table class="styled-table" id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Material Name</th>
+                        <th>Color</th>
+                        <th>Unit Price</th>
+                        <th>Stock Available</th>
+                        <th>Threshold</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #aaa; padding: 30px;">
+                            Loading materials from database...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <section class="card">
-      <h2>Add Inventory Item</h2>
-      <input id="itemName" placeholder="Item Name" required>
-      <input id="stockLevel" type="number" min="0" step="1" placeholder="Stock Quantity" required>
-      <input id="itemPrice" type="number" min="0" step="0.01" placeholder="Price" required>
-      <button onclick="addInventory()">Add Item</button>
-    </section>
-
-    <section class="card full">
-      <h2>Current Inventory</h2>
-      <div id="inventoryTable"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
-  </footer>
-
-  <script src="js/script.js"></script>
-  <script src="js/liveOrder.js"></script>
-  <script src="js/inventory.js"></script>
-  <script>
-    showInventoryTable();
-  </script>
+    <script src="js/inventory.js"></script>
 </body>
 </html>

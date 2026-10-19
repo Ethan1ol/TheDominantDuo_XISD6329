@@ -1,193 +1,71 @@
-//INVENTORY 
-function showInventory() {
-  let report = "";
-  report += "INVENTORY REPORT\n";
-  report += "========================\n\n";
+// js/inventory.js - Legacies Screen Printers Inventory Management
+const API_BASE_URL = "http://localhost:5000/api";
 
+document.addEventListener("DOMContentLoaded", () => {
+    loadInventory();
+});
 
-  inventory.forEach(i => {
+async function loadInventory() {
+    const tableBody = document.getElementById("inventoryBody") || document.querySelector("#inventoryTable tbody");
+    if (!tableBody) return;
 
+    try {
+        const response = await fetch(`${API_BASE_URL}/materials`, {
+            headers: {
+                "ngrok-skip-browser-warning": "69420"
+            }
+        });
 
-    report +=
-    `Item ID: ${i.itemId}
-    Item Name: ${i.itemName}
-    Current Stock: ${i.stockLevel}
-    Price: R${i.price}
-    ------------------------
-    `;
-  });
+        if (!response.ok) {
+            throw new Error(`Failed to load materials: ${response.statusText}`);
+        }
 
-  display(report);
-}
+        const materials = await response.json();
+        tableBody.innerHTML = "";
 
-//Shows the stocks 
-function showStockChart() {
-  display(inventory.map(i =>
-    `${i.itemName}: ${"█".repeat(i.stockLevel / 10)}`
-  ).join("\n"));
-}
+        if (materials.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #ffaa00; padding: 20px;">
+                        No materials found in database.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
 
-//shows amount of stock categories that are low
-function lowStockReport(){
-  
-  let report=
-  "LOW STOCK ALERT\n\n";
-  
-  inventory
-  .filter(i=>i.stockLevel<=20)
-  .forEach(i=>{
+        materials.forEach(mat => {
+            const isLowStock = mat.stockQuantity <= mat.lowStockThreshold;
+            const row = document.createElement("tr");
 
-    report+=
-    `
-    Item:
-    ${i.itemName}
-
-    Current Stock:
-    ${i.stockLevel}
-
-    ----------------
-
-    `;});
-    display(report);
-
-  }
-
-// INVENTORY MANAGEMENT
-function showInventoryTable(){
-  let container = document.getElementById("inventoryTable");
-  if(!container) return;
-
-  let html = `
-    <table>
-    <tr>
-
-    <th>ID</th>
-    <th>Name</th>
-    <th>Stock</th>
-    <th>Price</th>
-    <th>Actions</th>
-    </tr>
-
-    `;
-    
-    inventory.forEach(i=>{
-
-      html +=
-      `
-      <tr>
-      
-      <td>${i.itemId}</td>
-      <td>${i.itemName}</td>
-      <td>${i.stockLevel}</td>
-      <td>R${i.price}</td>
-      <td>
-      
-      <button onclick="editInventory('${i.itemId}')">
-      Edit
-      </button>
-      
-      <button onclick="deleteInventory('${i.itemId}')">
-      Delete
-      </button>
-      
-      </td>
-      </tr>
-      `;
-    });
-    
-    html += "</table>";
-    container.innerHTML = html;
-}
-
-
-
-//Allows admin to add new items to the inventory
-function addInventory(){
-  let name = document.getElementById("itemName").value.trim();
-  let stockValue = document.getElementById("stockLevel").value;
-  let priceValue = document.getElementById("itemPrice").value;
-  let stock = Number(stockValue);
-  let price = Number(priceValue);
-
-  if(!name || stockValue === "" || !Number.isInteger(stock) || stock < 0 ||
-    priceValue === "" || !Number.isFinite(price) || price < 0){
-    alert("Enter an item name, a whole-number stock quantity of zero or more, and a price of zero or more.");
-    return;
-  }
-
-  let item = {
-
-    itemId:"INV"+Math.floor(1000 + Math.random() * 9000),
-  
-    itemName:name,
-  
-    stockLevel:stock,
-  
-    price:price
-  };
-
-  inventory.push(item);
-  save();
-  showInventoryTable();
-  alert("Inventory added");
-}
-
-//Allows admin to edit already existing inventory
-function editInventory(id){
-  let item = inventory.find(i=>i.itemId===id);
-  if(!item) return;
-
-  let stock =
-  prompt(
-    "Update Stock",
-    item.stockLevel
-  );
-  if(stock === null) return;
-
-  let price =
-  prompt(
-    "Update Price",
-    item.price
-  );
-  if(price === null) return;
-
-  let newStock = Number(stock);
-  let newPrice = Number(price);
-  if(!stock.trim() || !Number.isInteger(newStock) || newStock < 0 ||
-    !price.trim() || !Number.isFinite(newPrice) || newPrice < 0){
-    alert("Stock must be a whole number of zero or more and price must be zero or more.");
-    return;
-  }
-  
-  item.stockLevel = newStock;
-  item.price = newPrice;
-  
-  save();
-  showInventoryTable();
-}
-
-function deleteInventory(id){
-  inventory = inventory.filter(i=>i.itemId !== id);
-  save();
-  showInventoryTable();
-}
-
-
-//Upload vinyl design
-function uploadDesignImage(inputID){
-  return new Promise((resolve)=>{
-    let file =
-    document.getElementById(inputID).files[0];
-    if(!file){
-      resolve(null);
-      return;
+            row.innerHTML = `
+                <td>#${mat.materialId}</td>
+                <td><strong>${mat.materialName}</strong></td>
+                <td><span style="color: #bbb;">${mat.color}</span></td>
+                <td><strong>R ${Number(mat.unitPrice).toFixed(2)}</strong></td>
+                <td>
+                    <span style="color: ${isLowStock ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">
+                        ${mat.stockQuantity} ${mat.unitMeasure}
+                    </span>
+                </td>
+                <td style="color: #888;">${mat.lowStockThreshold} ${mat.unitMeasure}</td>
+                <td>
+                    ${isLowStock 
+                        ? '<span class="badge badge-lowstock">Low Stock</span>' 
+                        : '<span class="badge badge-instock">In Stock</span>'}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error loading inventory:", error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: #e74c3c; padding: 25px;">
+                    Failed to connect to API at ${API_BASE_URL}.<br>
+                    <small style="color: #888;">Make sure your API terminal ('dotnet run') is active on port 5000.</small>
+                </td>
+            </tr>
+        `;
     }
-    
-    let reader = new FileReader();
-    reader.onload = function(e){
-      resolve(e.target.result);
-    };
-    
-    reader.readAsDataURL(file);
-  });
 }
