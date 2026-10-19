@@ -40,9 +40,17 @@ function loadDashboard(){
 
 /*  CUSTOMERS  */
 function addCustomer() {
-  let name = document.getElementById("name").value;
-  let contact = document.getElementById("contact").value;
-  let email = document.getElementById("email").value;
+  let name = document.getElementById("name").value.trim();
+  let contact = document.getElementById("contact").value.trim();
+  let email = document.getElementById("email").value.trim();
+  if(!name || !contact){
+    alert("Enter the customer's name and contact details.");
+    return;
+  }
+  if(customers.some(customer => customer.contact === contact)){
+    alert("A customer with this contact number already exists.");
+    return;
+  }
 
   customers.push({
     customerId: "CUS"+Math.floor(1000 + Math.random() * 9000),
@@ -57,6 +65,9 @@ function addCustomer() {
 }
 
 function showCustomersTable(list = customers) {
+  let table = document.getElementById("customerTable");
+  if(!table) return;
+
   let html = `<table style="width:100%; color:white;">
   <tr style="color:#ff7a00">
     <th>ID</th><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th>
@@ -83,7 +94,7 @@ function showCustomersTable(list = customers) {
   });
 
   html += `</table>`;
-  document.getElementById("customerTable").innerHTML = html;
+  table.innerHTML = html;
 }
 
 function selectCustomerOrder(id){
@@ -141,6 +152,11 @@ function viewCustomerOrders(id){
   let customerOrders =
   orders.filter(o => o.customerID === id);
   
+  if(!customer){
+    display("Customer not found");
+    return;
+  }
+
   let report = `
   CUSTOMER ORDER HISTORY
   
@@ -161,11 +177,10 @@ function viewCustomerOrders(id){
     Order ID:
     ${o.orderID}
     
-    Item:
-    ${o.itemName}
-
-    Quantity:
-    ${o.qty}
+    Designs:
+    ${(o.items || []).map(item =>
+      `${item.designName} - ${item.vinyl}, quantity ${item.quantity}`
+    ).join("\n    ") || `${o.itemName || "No design details"} - quantity ${o.qty || 0}`}
 
     Total:
     R${o.total}
@@ -187,241 +202,377 @@ function viewCustomerOrders(id){
 }
 
 
-//shows order history to 
 function showOrders(){
-  let report = "";
-  orders.forEach(o => {
-    
-    report +=
-    `
-    ========================
+  let details = document.getElementById("orderDetails");
+  if(!details) return;
 
-    Order ID:
-    ${o.orderID}
+  details.hidden = !details.hidden;
+  if(details.hidden) return;
 
-    Customer:
-    ${o.customerName}
+  if(orders.length === 0){
+    details.textContent = "No orders have been placed yet.";
+    return;
+  }
 
-    Contact:
-    ${o.contact}
+  details.textContent = orders.map(order => {
+    let items = order.items || [];
+    let designs = items.length
+      ? items.map((item, index) =>
+        `  ${index + 1}. ${item.designName || "Untitled design"} | ${item.vinyl || "Material unavailable"} | Qty: ${item.quantity ?? item.qty ?? 0} | R${item.total ?? 0}`
+      ).join("\n")
+      : `  ${order.itemName || "Design details unavailable"} | Qty: ${order.qty || 0}`;
 
-    Item:
-    ${o.itemName}
-
-    Quantity:
-    ${o.qty}
-
-    Total:
-    R${o.total}
-
-    Status:
-    ${o.status}
-
-    Date:
-    ${o.date}
-
-    ========================
-    `;
-  });
-  
-  display(report);
+    return [
+      `Order: ${order.orderID}`,
+      `Customer: ${order.customerName || "Unknown"} (${order.contact || "No contact"})`,
+      `Status: ${order.status || "Pending"}`,
+      `Date: ${order.date || "Unknown"}`,
+      "Designs:",
+      designs,
+      `Total: R${order.total || 0}`
+    ].join("\n");
+  }).join("\n\n------------------------------\n\n");
 }
 
-//allows admin to order status and actions that can be taken and updates it
 function showOrderTable(){
+  let container = document.getElementById("orderTable");
+  if(!container) return;
 
-  let html = `
-  <table>
-  <tr>
-  
-  <th>Order</th>
-  <th>Customer</th>
-  <th>Total</th>
-  <th>Status</th>
-  <th>Action</th>
-  </tr>
-  `;
-  
-  orders.forEach(o=>{
-    html+=`
-    
-    <tr>
-    
-    <td>${o.orderID}</td>
-    
-    <td>${o.customerName}</td>
-    
-    <td>R${o.total}</td>
-    
-    <td>${o.status}</td>
-
-    <td>
-    
-    <button onclick="changeStatus('${o.orderID}','Processing')">
-    
-    Processing
-    </button>
-    
-    <button onclick="changeStatus('${o.orderID}','Completed')">
-    
-    Completed
-    
-    </button>
-    </td>
-    </tr>`;
+  let table = document.createElement("table");
+  let head = table.createTHead().insertRow();
+  ["Order", "Customer", "Designs", "Total", "Status", "Actions"].forEach(label => {
+    let th = document.createElement("th");
+    th.textContent = label;
+    head.appendChild(th);
   });
-  
-  html+="</table>";
-  document.getElementById("orderTable").innerHTML=html;
+
+  let body = table.createTBody();
+  orders.forEach(order => {
+    let row = body.insertRow();
+    [
+      order.orderID,
+      order.customerName || "Unknown",
+      (order.items || []).length || 1,
+      `R${order.total || 0}`,
+      order.status || "Pending"
+    ].forEach(value => {
+      row.insertCell().textContent = value;
+    });
+
+    let actions = row.insertCell();
+    let editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => editOrder(order.orderID));
+    actions.appendChild(editButton);
+
+    ["Processing", "Completed"].forEach(status => {
+      let button = document.createElement("button");
+      button.type = "button";
+      button.textContent = status;
+      button.addEventListener("click", () => changeStatus(order.orderID, status));
+      actions.appendChild(button);
+    });
+  });
+
+  container.replaceChildren(table);
 }
 
-
-
-//allows the admin to change the order status
 function changeStatus(id,status){
-  
-  let order =
-  orders.find(o=>o.orderID===id);
+  let order = orders.find(o => o.orderID === id);
+  if(!order) return;
+
   order.status=status;
 
   save();
   showOrderTable();
 }
 
+function createOrderFromInput({name, contact, email}){
+  let normalizedName = name.trim();
+  let normalizedContact = contact.trim();
+  if(!normalizedName || !normalizedContact){
+    return {success: false, message: "Enter customer name and contact details."};
+  }
+
+  let rows = [...document.querySelectorAll(".designRow")];
+  if(rows.length === 0){
+    return {success: false, message: "Add at least one design to the order."};
+  }
+
+  let orderItems = [];
+  let requestedStock = new Map();
+  for(let row of rows){
+    let designName = row.querySelector(".designName").value.trim();
+    let vinylID = row.querySelector(".designVinyl").value;
+    let quantity = Number(row.querySelector(".designQty").value);
+    let item = inventory.find(entry => entry.itemId === vinylID);
+
+    if(!designName || !item || !Number.isInteger(quantity) || quantity <= 0){
+      return {success: false, message: "Complete each design name, material, and positive whole-number quantity."};
+    }
+
+    requestedStock.set(item.itemId, (requestedStock.get(item.itemId) || 0) + quantity);
+    orderItems.push({
+      designID: "DES" + Math.floor(1000 + Math.random() * 9000),
+      designName,
+      itemId: item.itemId,
+      vinyl: item.itemName,
+      quantity,
+      price: item.price,
+      total: quantity * item.price
+    });
+  }
+
+  for(let [itemId, quantity] of requestedStock){
+    let item = inventory.find(entry => entry.itemId === itemId);
+    if(item.stockLevel < quantity){
+      return {success: false, message: `Not enough stock for ${item.itemName}. Available: ${item.stockLevel}.`};
+    }
+  }
+
+  let customer = customers.find(entry => entry.contact === normalizedContact);
+  let isNewCustomer = !customer;
+  if(isNewCustomer){
+    customer = {
+      customerId: "CUS" + Math.floor(1000 + Math.random() * 9000),
+      fullName: normalizedName,
+      contact: normalizedContact,
+      email: email.trim()
+    };
+  }
+
+  requestedStock.forEach((quantity, itemId) => {
+    let item = inventory.find(entry => entry.itemId === itemId);
+    item.stockLevel -= quantity;
+  });
+
+  if(isNewCustomer) customers.push(customer);
+
+  let order = {
+    orderID: "ORD" + Math.floor(1000 + Math.random() * 9000),
+    customerID: customer.customerId,
+    customerName: customer.fullName,
+    contact: customer.contact,
+    items: orderItems,
+    total: orderItems.reduce((sum, item) => sum + item.total, 0),
+    status: "Pending",
+    date: new Date().toLocaleDateString()
+  };
+
+  orders.push(order);
+  save();
+  updateTotal();
+  loadVinylOptions();
+  showInventoryTable();
+  loadDashboard();
+  showCustomersTable();
+  showOrderTable();
+  return {success: true, order};
+}
+
+function addOrderEditDesign(item = {}){
+  let container = document.getElementById("editDesignContainer");
+  if(!container) return;
+
+  let row = document.createElement("div");
+  row.className = "designRow edit-design-row";
+
+  let name = document.createElement("input");
+  name.className = "editDesignName";
+  name.placeholder = "Design name";
+  name.value = item.designName || "";
+  name.setAttribute("aria-label", "Design name");
+
+  let select = document.createElement("select");
+  select.className = "editDesignVinyl";
+  select.setAttribute("aria-label", "Material");
+  let placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Select material";
+  select.appendChild(placeholder);
+
+  inventory.forEach(stockItem => {
+    let option = document.createElement("option");
+    option.value = stockItem.itemId;
+    option.textContent = `${stockItem.itemName} (Stock: ${stockItem.stockLevel})`;
+    select.appendChild(option);
+  });
+  let selectedItem = inventory.find(stockItem =>
+    item.itemId ? stockItem.itemId === item.itemId : stockItem.itemName === item.vinyl
+  );
+  if(selectedItem) select.value = selectedItem.itemId;
+
+  let quantity = document.createElement("input");
+  quantity.className = "editDesignQty";
+  quantity.type = "number";
+  quantity.min = "1";
+  quantity.step = "1";
+  quantity.placeholder = "Quantity";
+  quantity.value = item.quantity ?? item.qty ?? "";
+  quantity.setAttribute("aria-label", "Quantity");
+
+  let removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.textContent = "Remove design";
+  removeButton.addEventListener("click", () => row.remove());
+
+  row.append(name, select, quantity, removeButton);
+  container.appendChild(row);
+}
+
+function editOrder(id){
+  let order = orders.find(entry => entry.orderID === id);
+  let dialog = document.getElementById("orderEditor");
+  if(!order || !dialog) return;
+
+  document.getElementById("editOrderId").value = order.orderID;
+  document.getElementById("editCustomerName").value = order.customerName || "";
+  document.getElementById("editCustomerContact").value = order.contact || "";
+  document.getElementById("editOrderStatus").textContent = "";
+
+  let container = document.getElementById("editDesignContainer");
+  container.replaceChildren();
+  let items = order.items || [];
+  if(items.length){
+    items.forEach(item => addOrderEditDesign(item));
+  } else {
+    addOrderEditDesign({
+      designName: order.designName || "Design 1",
+      vinyl: order.vinyl || order.itemName || "",
+      quantity: order.qty || 1
+    });
+  }
+  dialog.showModal();
+}
+
+function saveOrderEdit(event){
+  event.preventDefault();
+  let orderId = document.getElementById("editOrderId").value;
+  let order = orders.find(entry => entry.orderID === orderId);
+  let status = document.getElementById("editOrderStatus");
+  if(!order){
+    status.textContent = "This order could not be found.";
+    return;
+  }
+
+  let name = document.getElementById("editCustomerName").value.trim();
+  let contact = document.getElementById("editCustomerContact").value.trim();
+  if(!name || !contact){
+    status.textContent = "Customer name and contact are required.";
+    return;
+  }
+
+  let linkedCustomer = customers.find(entry => entry.customerId === order.customerID);
+  if(customers.some(entry =>
+    entry.customerId !== (linkedCustomer && linkedCustomer.customerId) &&
+    entry.contact === contact
+  )){
+    status.textContent = "Another customer already uses this contact number.";
+    return;
+  }
+
+  let oldItems = order.items || [];
+  if(oldItems.length === 0 && order.itemName){
+    oldItems = [{vinyl: order.itemName, quantity: order.qty}];
+  }
+  let oldQuantities = new Map();
+  oldItems.forEach(item => {
+    let inventoryItem = inventory.find(entry =>
+      item.itemId ? entry.itemId === item.itemId : entry.itemName === item.vinyl
+    );
+    let quantity = Number(item.quantity ?? item.qty ?? 0);
+    if(inventoryItem && quantity > 0){
+      oldQuantities.set(inventoryItem.itemId,
+        (oldQuantities.get(inventoryItem.itemId) || 0) + quantity);
+    }
+  });
+
+  let newItems = [];
+  let newQuantities = new Map();
+  let rows = [...document.querySelectorAll("#editDesignContainer .edit-design-row")];
+  if(rows.length === 0){
+    status.textContent = "An order must contain at least one design.";
+    return;
+  }
+
+  for(let row of rows){
+    let designName = row.querySelector(".editDesignName").value.trim();
+    let item = inventory.find(entry => entry.itemId === row.querySelector(".editDesignVinyl").value);
+    let quantity = Number(row.querySelector(".editDesignQty").value);
+    if(!designName || !item || !Number.isInteger(quantity) || quantity <= 0){
+      status.textContent = "Complete each design name, material, and positive whole-number quantity.";
+      return;
+    }
+
+    newQuantities.set(item.itemId, (newQuantities.get(item.itemId) || 0) + quantity);
+    newItems.push({
+      designID: "DES" + Math.floor(1000 + Math.random() * 9000),
+      designName,
+      itemId: item.itemId,
+      vinyl: item.itemName,
+      quantity,
+      price: item.price,
+      total: quantity * item.price
+    });
+  }
+
+  for(let [itemId, quantity] of newQuantities){
+    let item = inventory.find(entry => entry.itemId === itemId);
+    let available = item.stockLevel + (oldQuantities.get(itemId) || 0);
+    if(quantity > available){
+      status.textContent = `Not enough stock for ${item.itemName}. Available to this order: ${available}.`;
+      return;
+    }
+  }
+
+  oldQuantities.forEach((quantity, itemId) => {
+    let item = inventory.find(entry => entry.itemId === itemId);
+    item.stockLevel += quantity;
+  });
+  newQuantities.forEach((quantity, itemId) => {
+    let item = inventory.find(entry => entry.itemId === itemId);
+    item.stockLevel -= quantity;
+  });
+
+  order.customerName = name;
+  order.contact = contact;
+  order.items = newItems;
+  order.total = newItems.reduce((sum, item) => sum + item.total, 0);
+  if(linkedCustomer){
+    linkedCustomer.fullName = name;
+    linkedCustomer.contact = contact;
+    orders.forEach(existingOrder => {
+      if(existingOrder.customerID === linkedCustomer.customerId){
+        existingOrder.customerName = name;
+        existingOrder.contact = contact;
+      }
+    });
+  }
+
+  save();
+  showOrderTable();
+  showCustomersTable();
+  showInventoryTable();
+  loadVinylOptions();
+  loadDashboard();
+  document.getElementById("orderEditor").close();
+}
 
 
 // CUSTOMER ORDER allows customers place orders
 async function placeOrder(){
-  let name = document.getElementById("custName").value;
-  let contact = document.getElementById("custContact").value;
-  let email = document.getElementById("custEmail").value;
-  
-  if(!name || !contact){
-    alert("Enter customer details");
+  let result = createOrderFromInput({
+    name: document.getElementById("custName").value,
+    contact: document.getElementById("custContact").value,
+    email: document.getElementById("custEmail").value
+  });
+  if(!result.success){
+    alert(result.message);
     return;
   }
-  
-  // find existing customer
-  let customer = customers.find(c => c.contact === contact);
-  if(!customer){
-    
-    customer = {
-      customerId:
-      "CUS"+Math.floor(1000+Math.random()*9000),
-      
-      fullName:name,
-      
-      contact:contact,
 
-      email:email
-    };
-    
-    customers.push(customer);
-  }
-  
-  let rows =
-  document.querySelectorAll(".designRow");
-
-  let orderItems = [];
-
-  let total = 0;
-
-  for(let row of rows){
-
-    let designName =
-    row.querySelector(".designName").value;
-
-    let vinylID =
-    row.querySelector(".designVinyl").value;
-
-    let qty =
-    Number(row.querySelector(".designQty").value);
-
-    let item =
-    inventory.find(i => i.itemId === vinylID);
-
-    if(!designName || !item || qty <= 0){
-      alert("Complete all design details");
-      return;
-    }
-    
-    if(item.stockLevel < qty){
-      alert("Not enough stock for "+item.itemName);
-      return;
-    }
-
-    let design = {
-      designID:
-      "DES"+Math.floor(1000+Math.random()*9000),
-      
-      designName:designName,
-      
-      vinyl:item.itemName,
-      
-      quantity:qty,
-      
-      price:item.price,
-      
-      total:qty * item.price
-    
-    };
-    
-    
-    orderItems.push(design);
-    
-    item.stockLevel -= qty;
-    
-    total += design.total;
-  }
-  
-  let order = {
-    orderID:
-    "ORD"+Math.floor(1000+Math.random()*9000),
-    
-    customerID:
-    customer.customerId,
-    
-    customerName:
-    customer.fullName,
-    
-    contact:
-    customer.contact,
-
-    items:
-    orderItems,
-
-    total:total,
-    status:"Pending",
-
-    date:
-    new Date().toLocaleDateString()
-  };
-  
-  orders.push(order);
-  save();
-  
-  display(`
-    
-    ORDER PLACED SUCCESSFULLY
-    
-    Order Reference:
-    ${order.orderID}
-
-
-    Customer:
-    ${customer.fullName}
-    
-    Total:
-    R${order.total}
-    
-    Status:
-    ${order.status}
-
-    Designs:
-    ${order.items.length}
-    `);
-    
-    updateTotal();
+  display(`Order placed successfully.\nReference: ${result.order.orderID}\nTotal: R${result.order.total}`);
 }
 
 
@@ -494,6 +645,7 @@ function loadCustomerDropdown(){
 
 window.onload = function(){
   updateDropdowns();
-  updatePrice();
+  if(document.getElementById("itemSelect") && typeof updatePrice === "function"){
+    updatePrice();
+  }
 };
-

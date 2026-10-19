@@ -10,30 +10,27 @@
 
   <header>
    <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Sceen Printers</span>
+    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
     </div>
 
     <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="customers.html">Customers</a>
-      <a href="orders.html">Orders</a>
-      <a href="inventory.html">Inventory</a>
+      <a href="customer_dashboard.html">Customer Home</a>
       <a href="customers_order.html">Place Order</a>
-      <a href="order_search.html">Track Order</a>
+      <a href="order_search.html">Track Orders</a>
     </nav>
   </header>
 
   <main class="container">
-    <h1>Track Your Order</h1>
+    <h1 class="track-page-title">Track Your Orders</h1>
 
-    <section class="card">
-      <h2>Customer Details</h2>
+    <section class="card track-search-card">
+      <h2>Find Your Order History</h2>
       <input id="trackName" placeholder="Full Name">
       <input id="trackContact" placeholder="Contact Number">
-      <button onclick="searchCustomerOrders()">Search Orders</button>
+      <button onclick="searchCustomerOrders()">View My Orders</button>
     </section>
 
-    <section class="card full">
+    <section class="card full track-output-card">
       <pre id="output"></pre>
     </section>
   </main>

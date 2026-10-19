@@ -54,6 +54,9 @@ function lowStockReport(){
 
 // INVENTORY MANAGEMENT
 function showInventoryTable(){
+  let container = document.getElementById("inventoryTable");
+  if(!container) return;
+
   let html = `
     <table>
     <tr>
@@ -93,16 +96,24 @@ function showInventoryTable(){
     });
     
     html += "</table>";
-    document.getElementById("inventoryTable").innerHTML = html;
+    container.innerHTML = html;
 }
 
 
 
 //Allows admin to add new items to the inventory
 function addInventory(){
-  let name = document.getElementById("itemName").value;
-  let stock = Number(document.getElementById("stockLevel").value);
-  let price = Number(document.getElementById("itemPrice").value);
+  let name = document.getElementById("itemName").value.trim();
+  let stockValue = document.getElementById("stockLevel").value;
+  let priceValue = document.getElementById("itemPrice").value;
+  let stock = Number(stockValue);
+  let price = Number(priceValue);
+
+  if(!name || stockValue === "" || !Number.isInteger(stock) || stock < 0 ||
+    priceValue === "" || !Number.isFinite(price) || price < 0){
+    alert("Enter an item name, a whole-number stock quantity of zero or more, and a price of zero or more.");
+    return;
+  }
 
   let item = {
 
@@ -124,23 +135,32 @@ function addInventory(){
 //Allows admin to edit already existing inventory
 function editInventory(id){
   let item = inventory.find(i=>i.itemId===id);
+  if(!item) return;
+
   let stock =
   prompt(
     "Update Stock",
     item.stockLevel
   );
+  if(stock === null) return;
 
   let price =
   prompt(
     "Update Price",
     item.price
   );
+  if(price === null) return;
+
+  let newStock = Number(stock);
+  let newPrice = Number(price);
+  if(!stock.trim() || !Number.isInteger(newStock) || newStock < 0 ||
+    !price.trim() || !Number.isFinite(newPrice) || newPrice < 0){
+    alert("Stock must be a whole number of zero or more and price must be zero or more.");
+    return;
+  }
   
-  item.stockLevel =
-  Number(stock);
-  
-  item.price =
-  Number(price);
+  item.stockLevel = newStock;
+  item.price = newPrice;
   
   save();
   showInventoryTable();

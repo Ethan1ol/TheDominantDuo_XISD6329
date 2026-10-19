@@ -48,19 +48,28 @@ function updateTotal(){
 
 // Edit Customer allows for editing of customer information done by the admin
 function editCustomer(id){
-    let customer =
-    customers.find(c => c.customerId === id);
-
-    let oldName = customer.fullName;
+    let customer = customers.find(c => c.customerId === id);
+    if(!customer) return;
 
     let name = prompt("Name", customer.fullName);
+    if(name === null) return;
+    let contact = prompt("Contact", customer.contact);
+    if(contact === null) return;
+    let email = prompt("Email", customer.email);
+    if(email === null) return;
 
-    let contact =
-    prompt("Contact", customer.contact);
+    name = name.trim();
+    contact = contact.trim();
+    email = email.trim();
+    if(!name || !contact){
+        alert("Name and contact are required.");
+        return;
+    }
+    if(customers.some(entry => entry.customerId !== id && entry.contact === contact)){
+        alert("A customer with this contact number already exists.");
+        return;
+    }
 
-    let email =
-    prompt("Email", customer.email);
-    
     customer.fullName = name;
     customer.contact = contact;
     customer.email = email;
@@ -80,134 +89,23 @@ function editCustomer(id){
 
 //this creates the walkin option
 async function createWalkInOrder(){
-    let name =
-    document.getElementById("walkName").value;
-
-    let contact =
-    document.getElementById("walkContact").value;
-
-    let email =
-    document.getElementById("walkEmail").value;
-
-    if(!name || !contact){
-        alert("Enter customer details");
+    let result = createOrderFromInput({
+        name: document.getElementById("walkName").value,
+        contact: document.getElementById("walkContact").value,
+        email: document.getElementById("walkEmail").value
+    });
+    if(!result.success){
+        alert(result.message);
         return;
     }
-    
-    // FIND CUSTOMER OR CREATE NEW ONE
 
-    let customer =
-    customers.find(c => c.contact === contact);
-    
-    if(!customer){
-        customer = {
-            
-            customerId:
-            "CUS"+Math.floor(1000 + Math.random()*9000),
-
-            fullName:name,
-
-            contact:contact,
-
-            email:email
-        };
-        customers.push(customer);
-    }
-    
-    let rows =
-    document.querySelectorAll(".designRow");
-
-
-    let orderItems = [];
-    let total = 0;
-
-    for(let row of rows){
-        let designName =
-        row.querySelector(".designName").value;
-
-        let vinylID =
-        row.querySelector(".designVinyl").value;
-
-        let qty =
-        Number(row.querySelector(".designQty").value);
-
-        let item =
-        inventory.find(i=>i.itemId === vinylID);
-
-        if(!item || qty <= 0){
-            alert("Complete all design details");
-            return;
-        }
-
-        if(item.stockLevel < qty){
-            alert("Not enough stock for " + item.itemName);
-            return;
-        }
-
-        let design = {
-            designID:
-            "DES"+Math.floor(1000 + Math.random()*9000),
-            
-            designName:designName,
-
-            vinyl:item.itemName,
-
-            quantity:qty,
-
-            price:item.price,
-
-            total:qty * item.price
-        };
-
-        orderItems.push(design);
-
-        item.stockLevel -= qty;
-
-        total += design.total;
-    }
-    
-    let order = {
-        orderID:
-        "ORD"+Math.floor(1000 + Math.random()*9000),
-
-        customerID:
-        customer.customerId,
-
-        customerName:
-        customer.fullName,
-
-        contact:
-        customer.contact,
-
-        items:
-        orderItems,
-
-        total:
-        total,
-
-        status:
-        "Pending",
-
-        date:
-        new Date().toLocaleDateString()
-    };
-
-    orders.push(order);
-    save();
-    alert("Walk-in order created");
-    
-    // CLEAR FIELDS
-    document.getElementById("walkName").value="";
-    document.getElementById("walkContact").value="";
-    document.getElementById("walkEmail").value="";
-    document.querySelectorAll(".designName")
-    .forEach(x=>x.value="");
-
-    document.querySelectorAll(".designQty")
-    .forEach(x=>x.value="");
-    
+    alert("Walk-in order created: " + result.order.orderID);
+    document.getElementById("walkName").value = "";
+    document.getElementById("walkContact").value = "";
+    document.getElementById("walkEmail").value = "";
+    document.querySelectorAll(".designName").forEach(input => input.value = "");
+    document.querySelectorAll(".designQty").forEach(input => input.value = "");
     updateTotal();
-    showCustomersTable();
 }
 
 //allows to admin to list it as a walk in

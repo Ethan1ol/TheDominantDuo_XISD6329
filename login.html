@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - Legacies Screen Printers</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+  <header class="login-header">
+    <div class="logo-container">
+      <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo">
+      <span class="logo-text">Legacies Screen Printers</span>
+    </div>
+  </header>
+
+  <main class="login-layout">
+    <section class="login-welcome">
+      <p class="login-eyebrow">LEGACIES SCREEN PRINTERS</p>
+      <h1>Good work starts with a great impression.</h1>
+      <p>Manage print orders, keep an eye on materials, and stay up to date from one place.</p>
+      <div class="login-accent" aria-hidden="true"></div>
+    </section>
+
+    <section class="login-panel" aria-labelledby="loginTitle">
+      <div class="login-heading">
+        <p class="login-kicker">WELCOME BACK</p>
+        <h2 id="loginTitle">Sign in to your account</h2>
+        <p>Enter your account details to continue.</p>
+      </div>
+
+      <div class="login-notice" role="note">
+        <strong>Preview only</strong>
+        <span>Sign-in is not connected yet. This page does not send or store credentials.</span>
+      </div>
+
+      <form class="login-form" id="loginForm">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="username" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+
+        <button type="submit">Sign In <span aria-hidden="true">&rarr;</span></button>
+        <p id="loginStatus" class="login-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="login-help">Need an account? Contact your system administrator.</p>
+    </section>
+  </main>
+
+
+  <footer class="login-footer">
+    <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>
+    <p>Print with purpose.</p>
+  </footer>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      document.getElementById("password").value = "";
+      document.getElementById("loginStatus").textContent =
+        "Sign-in is unavailable until this page is connected to the application login service.";
+    });
+  </script>
+</body>
+</html>

@@ -10,7 +10,7 @@
 
   <header>
  <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Sceen Printers</span>
+    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
     </div>
 
     <nav class="nav">
@@ -18,7 +18,6 @@
       <a href="customers.html">Customers</a>
       <a href="orders.html">Orders</a>
       <a href="inventory.html">Inventory</a>
-      <a href="customers_order.html">Customer Order</a>
     </nav>
   </header>
 
@@ -26,9 +25,34 @@
     <section class="card full">
       <h2>Orders</h2>
       <button onclick="showOrders()">View Orders</button>
+      <pre id="orderDetails" hidden></pre>
       <div id="orderTable"></div>
     </section>
   </main>
+
+  <dialog id="orderEditor" class="order-editor">
+    <form id="orderEditorForm" onsubmit="saveOrderEdit(event)">
+      <input id="editOrderId" type="hidden">
+      <p class="login-kicker">ORDER MANAGEMENT</p>
+      <h2>Edit Order</h2>
+
+      <label for="editCustomerName">Customer name</label>
+      <input id="editCustomerName" required>
+
+      <label for="editCustomerContact">Contact</label>
+      <input id="editCustomerContact" required>
+
+      <h3>Designs</h3>
+      <div id="editDesignContainer"></div>
+      <button type="button" onclick="addOrderEditDesign()">+ Add Design</button>
+      <p id="editOrderStatus" class="login-status" role="status" aria-live="polite"></p>
+
+      <div class="order-editor-actions">
+        <button type="button" class="button-secondary" onclick="document.getElementById('orderEditor').close()">Cancel</button>
+        <button type="submit">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
 
   <footer>
     <p>&copy; 2026 Legacies Screen Printers. All Rights Reserved.</p>

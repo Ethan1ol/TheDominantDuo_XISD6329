@@ -10,24 +10,21 @@
 
   <header>
      <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Sceen Printers</span>
+    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
     </div>
 
     <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="customers.html">Customers</a>
-      <a href="orders.html">Orders</a>
-      <a href="inventory.html">Inventory</a>
-      <a href="customers_order.html">Customer Order</a>
-      <a href="order_search.html">Track Order</a>
+      <a href="customer_dashboard.html">Customer Home</a>
+      <a href="customers_order.html">Place Order</a>
+      <a href="order_search.html">Track Orders</a>
     </nav>
   </header>
 
 
-  <h1>Place Order</h1>
+  <h1>Place an Order</h1>
   <main class="container">
   
-    <!-- CUSTOMER -->
+    <!-- For Customers -->
     <section class="card">
       <h2>Customer</h2>
       <input id="custName" placeholder="Name">
@@ -35,7 +32,7 @@
       <input id="custEmail" placeholder="Email">
     </section>
 
-    <!-- ORDER -->
+    <!-- To Order -->
     <section class="card">
       <h2>Order Details</h2>
       <div id="designContainer">
@@ -45,7 +42,7 @@
           <input type="file" class="designImage" accept="image/*">
           <h3>Material</h3>
           <select class="designVinyl" onchange="updateTotal()"></select>
-          <input class="designQty" type="number" placeholder="Quantity" oninput="updateTotal()">
+          <input class="designQty" type="number" min="1" step="1" placeholder="Quantity" oninput="updateTotal()">
         </div>
       </div>
 

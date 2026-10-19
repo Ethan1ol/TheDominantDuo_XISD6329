@@ -10,7 +10,7 @@
 
   <header>
      <div class="logo-container">
-    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Sceen Printers</span>
+    <img src="images\LegaciesSP_Image.jpg" alt="Legacies Logo Icon" class="nav-logo"><span class="logo-text">Legacies Screen Printers</span>
     </div>
 
     <nav class="nav">
@@ -18,14 +18,13 @@
       <a href="customers.html">Customers</a>
       <a href="orders.html">Orders</a>
       <a href="inventory.html">Inventory</a>
-      <a href="customers_order.html">Customer Order</a>
     </nav>
   </header>
 
 
    <h1>Customer Management</h1>
   <main class="container">
-    <!-- ADD CUSTOMER -->
+    <!--To add customer -->
     <section class="card">
       <h2>Add Customer</h2>
       <input id="name" placeholder="Full Name">
@@ -34,7 +33,7 @@
       <button onclick="addCustomer()">Add Customer</button>
     </section>
 
-    <!-- WALK IN ORDER -->
+    <!-- For walk in orders -->
     <section class="card">
       <h2>Phone / Walk-in Order</h2>
       <h3>Customer Details</h3>
@@ -50,7 +49,7 @@
           <input type="file" class="designImage" accept="image/*">
           <h3>Material</h3>
           <select class="designVinyl" onchange="updateTotal()"></select>
-          <input class="designQty" type="number" placeholder="Quantity" oninput="updateTotal()">
+          <input class="designQty" type="number" min="1" step="1" placeholder="Quantity" oninput="updateTotal()">
         </div>
       </div>
 
@@ -59,7 +58,7 @@
       <button onclick="createWalkInOrder()">Create Order</button>
     </section>
 
-    <!-- SEARCH -->
+    <!-- To search customers -->
     <section class="card">
       <h2>Search Customer</h2>
       <input id="search" placeholder="Search name">
@@ -67,7 +66,7 @@
       <button onclick="showCustomersTable()">Show All</button>
     </section>
 
-    <!-- TABLE -->
+    <!-- Table -->
     <section class="card full">
       <h2>Customers</h2>
       <div id="customerTable"></div>
