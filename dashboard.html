@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Staff dashboard: headline numbers and the newest orders. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; connect-src 'self' http://localhost:5000 https://*.azurewebsites.net; img-src 'self' data:">
+  <title>Dashboard - Legacies Screen Printers staff</title>
+  <link rel="icon" href="images/LegaciesSP_Image.jpg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-portal="staff">
+  <header id="siteHeader"></header>
+
+  <main>
+    <h1>Order management</h1>
+    <p class="page-intro">Today's picture of the workshop. Numbers update every time you open this page.</p>
+    <p id="dashStatus" class="status" role="status"></p>
+
+    <div class="grid grid-3">
+      <section class="card stat-card"><div class="label">Customers</div><div class="value" id="statCustomers">-</div></section>
+      <section class="card stat-card"><div class="label">Orders in production</div><div class="value" id="statOpen">-</div></section>
+      <section class="card stat-card"><div class="label">Low-stock materials</div><div class="value" id="statLowStock">-</div></section>
+    </div>
+
+    <div class="grid grid-3 mt">
+      <a class="card link-card" href="orders.html"><h2>Orders</h2><p>Move orders through the production stages.</p></a>
+      <a class="card link-card" href="customers.html"><h2>Customers</h2><p>Add customers and record phone or walk-in orders.</p></a>
+      <a class="card link-card" href="inventory.html"><h2>Inventory</h2><p>Add vinyl, adjust stock and set low-stock alerts.</p></a>
+    </div>
+
+    <section class="card mt">
+      <h2>Newest orders</h2>
+      <div class="table-wrap">
+        <table class="responsive">
+          <thead><tr><th>Reference</th><th>Customer</th><th>Via</th><th>Status</th><th class="num">Total</th><th>Placed</th></tr></thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer id="siteFooter"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

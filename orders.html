@@ -1,161 +1,56 @@
 <!DOCTYPE html>
+<!-- Staff view of every order (app, website and walk-in) with the production stage control. -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management - Legacies Screen Printers</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            background-color: #0b0b0e;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 24px;
-        }
-        .nav-header {
-            max-width: 1200px;
-            margin: 0 auto 24px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-header h1 {
-            color: #ff7700;
-            margin: 0;
-            font-size: 2rem;
-        }
-        .nav-links a {
-            color: #ff8822;
-            text-decoration: none;
-            margin-left: 18px;
-            font-weight: 600;
-        }
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-        .orders-card {
-            background-color: #16161d;
-            border: 1px solid #23232e;
-            border-radius: 14px;
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .card-top h2 {
-            color: #ff7700;
-            margin: 0;
-            font-size: 1.4rem;
-        }
-        .btn-refresh {
-            background-color: #ff7700;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: background-color 0.2s;
-        }
-        .btn-refresh:hover {
-            background-color: #e66a00;
-        }
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-            text-align: left;
-            margin-top: 10px;
-        }
-        .styled-table thead tr {
-            background-color: #20202b;
-            color: #ff9933;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.05em;
-        }
-        .styled-table th, .styled-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #23232e;
-        }
-        .styled-table tbody tr:hover {
-            background-color: #1a1a24;
-        }
-        .status-select {
-            background-color: #101015;
-            color: #ff9933;
-            border: 1px solid #333344;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        .status-select:focus {
-            outline: none;
-            border-color: #ff7700;
-        }
-        .type-badge {
-            background-color: #252533;
-            color: #00d2ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; connect-src 'self' http://localhost:5000 https://*.azurewebsites.net; img-src 'self' data:">
+  <title>Orders - Legacies Screen Printers staff</title>
+  <link rel="icon" href="images/LegaciesSP_Image.jpg">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-portal="staff">
+  <header id="siteHeader"></header>
 
-    <div class="nav-header">
-        <h1>Orders Management</h1>
-        <div class="nav-links">
-            <a href="index.html">Dashboard</a>
-            <a href="customers.html">Customers</a>
-            <a href="inventory.html">Inventory</a>
-            <a href="order_search.html">Track Order</a>
+  <main>
+    <h1>Orders</h1>
+    <p class="page-intro">Every order from the app, the website and the counter. Changing an order's stage updates what the customer sees in the app and on the website straight away.</p>
+
+    <section class="card">
+      <div class="form-row cols-1-1-auto">
+        <div>
+          <label for="filterStatus">Show</label>
+          <select id="filterStatus">
+            <option value="open">Still in production</option>
+            <option value="all">All orders</option>
+            <option value="Completed">Completed</option>
+          </select>
         </div>
-    </div>
-
-    <div class="orders-card">
-        <div class="card-top">
-            <h2>Active Production Orders</h2>
-            <button id="refreshOrdersBtn" class="btn-refresh">Refresh Orders</button>
+        <div>
+          <label for="filterText">Search reference or customer</label>
+          <input id="filterText" type="search" placeholder="e.g. ORD5824 or Demo">
         </div>
+        <button id="refreshOrders" type="button" class="button-secondary">Refresh</button>
+      </div>
+      <p id="ordersStatus" class="status" role="status" aria-live="polite"></p>
 
-        <div style="overflow-x: auto;">
-            <table class="styled-table" id="ordersTable">
-                <thead>
-                    <tr>
-                        <th>Order Ref</th>
-                        <th>User ID</th>
-                        <th>Source</th>
-                        <th>Total Amount</th>
-                        <th>Production Stage</th>
-                        <th>Date Placed</th>
-                    </tr>
-                </thead>
-                <tbody id="ordersBody">
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #888; padding: 30px;">
-                            Loading orders from database...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+      <div class="table-wrap mt-sm">
+        <table class="responsive">
+          <thead>
+            <tr><th>Reference</th><th>Customer</th><th>Via</th><th>Items</th><th class="num">Total</th><th>Production stage</th><th>Placed</th></tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-    <script src="js/liveOrder.js"></script>
+  <footer id="siteFooter"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/liveOrder.js"></script>
 </body>
 </html>

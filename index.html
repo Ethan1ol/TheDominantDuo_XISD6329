@@ -1,173 +1,74 @@
 <!DOCTYPE html>
+<!-- Public home page: about the business, how ordering works, and order tracking. -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Legacies Screen Printers</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            background-color: #0b0b0e;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 40px;
-            background-color: #121217;
-            border-bottom: 1px solid #1f1f26;
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.15rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        .nav-links a {
-            color: #b0b0c0;
-            text-decoration: none;
-            margin-left: 24px;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-        .nav-links a:hover, .nav-links a.active {
-            color: #ff7700;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-            flex: 1;
-        }
-        h1.title {
-            text-align: center;
-            color: #ff7700;
-            font-size: 2.2rem;
-            margin-bottom: 36px;
-            font-weight: 800;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background-color: #16161d;
-            border: 1px solid #23232e;
-            border-radius: 14px;
-            padding: 24px;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-        .stat-card .label {
-            color: #8c8c9e;
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-        }
-        .stat-card .value {
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #ffffff;
-            text-align: center;
-            margin: 0;
-        }
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-        .nav-card {
-            background-color: #16161d;
-            border: 1px solid #23232e;
-            border-radius: 14px;
-            padding: 24px;
-            text-align: center;
-            text-decoration: none;
-            color: #ff7700;
-            font-size: 1.15rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
-        }
-        .nav-card:hover {
-            transform: translateY(-2px);
-            background-color: #1d1d26;
-            border-color: #ff7700;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #555566;
-            font-size: 0.85rem;
-            border-top: 1px solid #17171e;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; connect-src 'self' http://localhost:5000 https://*.azurewebsites.net; img-src 'self' data:">
+  <meta name="description" content="Legacies Screen Printers - custom vinyl cutting and screen printing. Order online or in the app and follow your job through production.">
+  <title>Legacies Screen Printers - Custom vinyl and screen printing</title>
+  <link rel="icon" href="images/LegaciesSP_Image.jpg">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-portal="public">
+  <header id="siteHeader"></header>
 
-    <header class="navbar">
-        <div class="logo-area">
-            <span style="display:inline-block; width: 24px; height: 24px; border-radius: 50%; background: #2ecc71;"></span>
-            Legacies Screen Printers
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Vinyl cutting &amp; screen printing</p>
+        <h1>Your designs, printed and tracked from order to collection.</h1>
+        <p>Legacies Screen Printers prints logos, signage, decals and garments for local businesses, clubs and events. Place an order online or in our Android app, then follow it through every production stage.</p>
+        <div class="actions">
+          <a class="button" href="login.html">Sign in or create an account</a>
+          <a class="button button-secondary" href="#track">Track an order</a>
         </div>
-        <nav class="nav-links">
-            <a href="index.html" class="active">Dashboard</a>
-            <a href="customers.html">Customers</a>
-            <a href="orders.html">Orders</a>
-            <a href="inventory.html">Inventory</a>
-        </nav>
-    </header>
+      </div>
+      <img src="images/LegaciesSP_Image.jpg" alt="Legacies Screen Printers logo">
+    </section>
 
-    <main class="container">
-        <h1 class="title">Order Management System</h1>
+    <div class="grid grid-3">
+      <section class="card">
+        <h2>Who it's for</h2>
+        <p class="muted">Customers who want to order and check on print jobs without phoning the workshop, and the Legacies team who manage those orders, customers and vinyl stock.</p>
+      </section>
+      <section class="card">
+        <h2>How ordering works</h2>
+        <ol class="steps">
+          <li><strong>Sign in</strong> with Google or your email.</li>
+          <li><strong>Add your designs</strong>, choose vinyl and quantities, see the price.</li>
+          <li><strong>Track it</strong> through four production stages until it's ready to collect.</li>
+        </ol>
+      </section>
+      <section class="card">
+        <h2>Web and app, one account</h2>
+        <p class="muted">Sign in with the same Google account on this site and in the Legacies Android app: your orders and progress are the same on both.</p>
+        <p class="muted">Collection counter: Mon-Fri, 08:00-17:00.</p>
+      </section>
+    </div>
 
-        <!-- Summary Metric Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="label">Total Customers</div>
-                <div class="value" id="statCustomers">...</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Total Orders</div>
-                <div class="value" id="statOrders">...</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Low Stock Items</div>
-                <div class="value" id="statLowStock">...</div>
-            </div>
+    <section class="card mt" id="track">
+      <h2>Track an order</h2>
+      <p class="muted">Enter the reference you received when you ordered. For privacy, only the first name and a masked phone number are shown unless you're signed in as the order's owner.</p>
+      <form id="trackForm" class="form-row cols-1-auto">
+        <div>
+          <label for="trackRef">Order reference</label>
+          <input type="text" id="trackRef" placeholder="e.g. ORD123456" autocomplete="off" required>
         </div>
+        <button type="submit">Track</button>
+      </form>
+      <p id="trackStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="trackResult"></div>
+    </section>
+  </main>
 
-        <!-- Navigation Buttons -->
-        <div class="nav-grid">
-            <a href="customers.html" class="nav-card">
-                <span>👤</span> Customers
-            </a>
-            <a href="orders.html" class="nav-card">
-                <span>📦</span> Orders
-            </a>
-            <a href="inventory.html" class="nav-card">
-                <span>📊</span> Inventory
-            </a>
-        </div>
-    </main>
+  <footer id="siteFooter"></footer>
 
-    <footer>
-        &copy; 2026 Legacies Screen Printers. All Rights Reserved.
-    </footer>
-
-    <script src="js/script.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/orderTrack.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 </html>

@@ -1,111 +1,89 @@
-// js/liveOrder.js - Orders Management & Status Progression
-const API_BASE_URL = "http://localhost:5000/api";
+/* liveOrder.js - staff Orders page: list every order and change its production stage. */
+(function () {
+  "use strict";
+  if (!LSP.session.requireAdmin()) return; // redirecting to login or the customer home page
+  const { el, clear, status, emptyRow } = LSP.dom;
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Load orders immediately
-    loadAllOrders();
+  const STATUSES = [
+    "Order Received & Verified",
+    "Vinyl Cutting & Screen Prep",
+    "Screen Printing",
+    "Ready for Collection",
+    "Completed",
+  ];
 
-    // 2. Wire refresh button
-    const refreshBtn = document.getElementById("refreshOrdersBtn");
-    if (refreshBtn) {
-        refreshBtn.addEventListener("click", loadAllOrders);
-    }
-});
+  const body = document.getElementById("ordersBody");
+  const statusBox = document.getElementById("ordersStatus");
+  const filterStatus = document.getElementById("filterStatus");
+  const filterText = document.getElementById("filterText");
+  let orders = [];
 
-async function loadAllOrders() {
-    const tableBody = document.getElementById("ordersBody") || document.querySelector("#ordersTable tbody");
-    if (!tableBody) return;
-
-    tableBody.innerHTML = `
-        <tr>
-            <td colspan="6" style="text-align: center; color: #888; padding: 25px;">
-                Fetching active orders from database...
-            </td>
-        </tr>
-    `;
-
+  /** Fetches all orders from the API, then draws the filtered table. */
+  async function loadOrders() {
+    clear(body);
+    body.append(emptyRow(7, "Loading orders..."));
     try {
-        const response = await fetch(`${API_BASE_URL}/orders`, {
-            headers: {
-                "ngrok-skip-browser-warning": "69420"
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`API returned HTTP ${response.status}`);
-        }
-
-        const orders = await response.json();
-        tableBody.innerHTML = "";
-
-        if (!orders || orders.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #aaa; padding: 30px;">
-                        No orders recorded in database yet.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        orders.forEach(order => {
-            const row = document.createElement("tr");
-            const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Today";
-            const orderType = order.orderType || "mobile";
-
-            row.innerHTML = `
-                <td><strong style="color: #ff9933; font-size: 1rem;">${order.orderRef}</strong></td>
-                <td>User #${order.userId}</td>
-                <td><span class="type-badge">${orderType}</span></td>
-                <td><strong>R ${Number(order.totalAmount).toFixed(2)}</strong></td>
-                <td>
-                    <select class="status-select" onchange="updateStage(${order.orderId}, this.value)">
-                        <option value="Order Received & Verified" ${order.status === 'Order Received & Verified' ? 'selected' : ''}>1. Order Received & Verified</option>
-                        <option value="Vinyl Cutting & Screen Prep" ${order.status === 'Vinyl Cutting & Screen Prep' ? 'selected' : ''}>2. Vinyl Cutting & Screen Prep</option>
-                        <option value="Screen Printing" ${order.status === 'Screen Printing' ? 'selected' : ''}>3. Screen Printing</option>
-                        <option value="Ready for Collection" ${order.status === 'Ready for Collection' ? 'selected' : ''}>4. Ready for Collection</option>
-                        <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>5. Completed</option>
-                    </select>
-                </td>
-                <td style="color: #888;">${dateStr}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-    } catch (error) {
-        console.error("Error loading orders:", error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align: center; color: #ff5555; padding: 25px;">
-                    Failed to connect to API at ${API_BASE_URL}.<br>
-                    <small style="color: #888;">Ensure your ASP.NET Core terminal ('dotnet run') is active on port 5000.</small>
-                </td>
-            </tr>
-        `;
+      orders = await LSP.api.fetch("/orders");
+      LSP.log("Orders", "info", `Loaded ${orders.length} orders.`);
+      draw();
+    } catch (e) {
+      clear(body);
+      body.append(emptyRow(7, "Couldn't load orders."));
+      status(statusBox, e.message, "error");
     }
-}
+  }
 
-// Update order stage directly in the SQL database
-window.updateStage = async function(orderId, newStatus) {
+  /** Applies the status filter and search box, then rebuilds the table. */
+  function draw() {
+    const mode = filterStatus.value;
+    const q = filterText.value.trim().toLowerCase();
+    const shown = orders.filter((o) =>
+      (mode === "all" || (mode === "open" ? o.status !== "Completed" : o.status === mode)) &&
+      (!q || o.orderRef.toLowerCase().includes(q) || (o.clientName || "").toLowerCase().includes(q)));
+
+    clear(body);
+    if (!shown.length) body.append(emptyRow(7, orders.length ? "No orders match this filter." : "No orders yet."));
+    shown.forEach((o) => body.append(row(o)));
+  }
+
+  /** One table row, with a stage dropdown that saves as soon as it changes. */
+  function row(order) {
+    const select = el("select", { attrs: { "aria-label": `Production stage for ${order.orderRef}` } },
+      STATUSES.map((s, i) => el("option", { text: `${i + 1}. ${s}`, attrs: { value: s, selected: s === order.status } })));
+    select.addEventListener("change", () => updateStage(order, select));
+
+    const items = (order.items || []).map((i) => `${i.quantity} x ${i.designName}`).join(", ");
+    return el("tr", {}, [
+      el("td", { attrs: { "data-label": "Reference" } }, [el("span", { className: "ref", text: order.orderRef })]),
+      el("td", { attrs: { "data-label": "Customer" } }, [order.clientName, el("br"), el("small", { className: "muted", text: order.contact })]),
+      el("td", { attrs: { "data-label": "Via" } }, [el("span", { className: "badge", text: LSP.format.orderType(order.orderType) })]),
+      el("td", { text: items, attrs: { "data-label": "Items" } }),
+      el("td", { className: "num", text: LSP.format.money(order.totalAmount), attrs: { "data-label": "Total" } }),
+      el("td", { attrs: { "data-label": "Stage" } }, [select]),
+      el("td", { text: LSP.format.date(order.createdAt), attrs: { "data-label": "Placed" } }),
+    ]);
+  }
+
+  /** Saves a new stage; on failure puts the dropdown back to the previous value. */
+  async function updateStage(order, select) {
+    const previous = order.status;
+    select.disabled = true;
     try {
-        const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "69420"
-            },
-            body: JSON.stringify({ status: newStatus })
-        });
-
-        if (response.ok) {
-            console.log(`Order #${orderId} stage updated to: ${newStatus}`);
-        } else {
-            alert("Failed to update status on server.");
-            loadAllOrders(); // Revert back to original on failure
-        }
-    } catch (err) {
-        console.error("Failed to update status:", err);
-        alert("Network error connecting to API.");
+      const updated = await LSP.api.fetch(`/orders/${order.orderId}/status`, { method: "PUT", body: { status: select.value } });
+      order.status = updated.status;
+      status(statusBox, `${order.orderRef} moved to "${updated.status}". The customer sees this in the app and on the website.`, "success");
+      LSP.log("Orders", "info", `${order.orderRef}: ${previous} -> ${updated.status}`);
+      if (filterStatus.value !== "all") draw();
+    } catch (e) {
+      select.value = previous;
+      status(statusBox, `Couldn't update ${order.orderRef}: ${e.message}`, "error");
+    } finally {
+      select.disabled = false;
     }
-};
+  }
+
+  filterStatus.addEventListener("change", draw);
+  filterText.addEventListener("input", draw);
+  document.getElementById("refreshOrders").addEventListener("click", loadOrders);
+  loadOrders();
+})();

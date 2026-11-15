@@ -1,301 +1,184 @@
-// js/customerSearch.js - Customer Management & Walk-in Pipeline
-const API_BASE_URL = "http://localhost:5000/api";
+/*
+ * customerSearch.js - staff Customers page.
+ * Reference: MDN Web Docs (2025) Crypto: getRandomValues() method - https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+ */
+(function () {
+  "use strict";
+  if (!LSP.session.requireAdmin()) return; // redirecting to login or the customer home page
+  const { el, clear, status, emptyRow } = LSP.dom;
 
-let loadedMaterials = [];
-let allCustomersCache = [];
+  const tableBody = document.getElementById("customersTableBody");
+  const customerSelect = document.getElementById("walkInCustomer");
+  const materialSelect = document.getElementById("walkInMaterialSelect");
+  const qtyInput = document.getElementById("walkInQty");
+  let users = [];
+  let materials = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Initial loads
-    loadCustomers();
-    loadMaterialsForWalkIn();
+  // ---------- Customer list ----------
 
-    // 2. Add customer form
-    const addCustForm = document.getElementById("addCustomerForm");
-    if (addCustForm) {
-        addCustForm.addEventListener("submit", handleAddCustomer);
-    }
-
-    // 3. Search and Show All handlers
-    const searchBtn = document.getElementById("searchCustomerBtn");
-    const showAllBtn = document.getElementById("showAllCustomersBtn");
-    const searchInput = document.getElementById("searchCustomerInput");
-
-    if (searchBtn && searchInput) {
-        searchBtn.addEventListener("click", () => filterCustomers(searchInput.value));
-        searchInput.addEventListener("keyup", (e) => {
-            if (e.key === "Enter") filterCustomers(searchInput.value);
-        });
-    }
-
-    if (showAllBtn) {
-        showAllBtn.addEventListener("click", () => {
-            if (searchInput) searchInput.value = "";
-            renderCustomerTable(allCustomersCache);
-        });
-    }
-
-    // 4. Walk-in Order total calculation and submission
-    const materialSelect = document.getElementById("walkInMaterialSelect");
-    const qtyInput = document.getElementById("walkInQty");
-    const walkInForm = document.getElementById("walkInOrderForm");
-
-    if (materialSelect) materialSelect.addEventListener("change", updateWalkInTotal);
-    if (qtyInput) qtyInput.addEventListener("input", updateWalkInTotal);
-    if (walkInForm) walkInForm.addEventListener("submit", handleWalkInOrder);
-});
-
-// Fetch all registered users/customers
-async function loadCustomers() {
-    const tableBody = document.getElementById("customersTableBody");
-    if (!tableBody) return;
-
+  /** Loads all accounts and refreshes the table and the walk-in customer dropdown. */
+  async function loadCustomers() {
+    clear(tableBody);
+    tableBody.append(emptyRow(7, "Loading customers..."));
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/users`, {
-            headers: { "ngrok-skip-browser-warning": "69420" }
-        });
-
-        if (!response.ok) {
-            // Fallback: If no /auth/users endpoint exists, try pulling distinct users from orders
-            loadCustomersFromOrders();
-            return;
-        }
-
-        allCustomersCache = await response.json();
-        renderCustomerTable(allCustomersCache);
-    } catch (err) {
-        console.warn("Could not fetch /auth/users, trying fallback...", err);
-        loadCustomersFromOrders();
-    }
-}
-
-// Fallback to fetch client details from orders endpoint
-async function loadCustomersFromOrders() {
-    const tableBody = document.getElementById("customersTableBody");
-    try {
-        const response = await fetch(`${API_BASE_URL}/orders`, {
-            headers: { "ngrok-skip-browser-warning": "69420" }
-        });
-        if (!response.ok) throw new Error("Orders API failed");
-
-        const orders = await response.json();
-        
-        // Group by user id to form unique customer rows
-        const map = new Map();
-        orders.forEach(o => {
-            if (!map.has(o.userId)) {
-                map.set(o.userId, {
-                    userId: o.userId,
-                    fullName: `Customer #${o.userId}`,
-                    email: `customer${o.userId}@legacies.co.za`,
-                    phoneNumber: "082 555 0100",
-                    role: "customer"
-                });
-            }
-        });
-
-        allCustomersCache = Array.from(map.values());
-        renderCustomerTable(allCustomersCache);
+      users = await LSP.api.fetch("/users");
+      LSP.log("Customers", "info", `Loaded ${users.length} accounts.`);
+      renderTable(users);
+      fillCustomerSelect();
     } catch (e) {
-        console.error("Failed to load customers:", e);
-        if (tableBody) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #ff5555; padding: 20px;">
-                        Could not load customer data. Check if your API is running at ${API_BASE_URL}.
-                    </td>
-                </tr>
-            `;
-        }
+      clear(tableBody);
+      tableBody.append(emptyRow(7, "Couldn't load customers."));
+      status(document.getElementById("listStatus"), e.message, "error");
     }
-}
+  }
 
-function renderCustomerTable(customers) {
-    const tableBody = document.getElementById("customersTableBody");
-    if (!tableBody) return;
+  /** Draws the customer table. */
+  function renderTable(list) {
+    clear(tableBody);
+    if (!list.length) { tableBody.append(emptyRow(7, "No customers match your search.")); return; }
+    list.forEach((u) => tableBody.append(el("tr", {}, [
+      el("td", { text: `#${u.userId}`, attrs: { "data-label": "ID" } }),
+      el("td", { text: u.fullName, attrs: { "data-label": "Name" } }),
+      el("td", { text: u.phoneNumber || "-", attrs: { "data-label": "Contact" } }),
+      el("td", { text: u.email, attrs: { "data-label": "Email" } }),
+      el("td", { attrs: { "data-label": "Role" } }, [el("span", { className: u.role === "admin" ? "badge accent" : "badge", text: u.role })]),
+      el("td", { text: LSP.format.date(u.createdAt), attrs: { "data-label": "Joined" } }),
+      el("td", {}, [el("button", {
+        className: "button-small button-secondary", text: "New walk-in order", attrs: { type: "button" },
+        on: { click: () => startWalkIn(u.userId) },
+      })]),
+    ])));
+  }
 
-    if (!customers || customers.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align: center; color: #aaa; padding: 20px;">
-                    No customers found matching your criteria.
-                </td>
-            </tr>
-        `;
-        return;
-    }
+  /** Filters the table as the user types (name, email or phone). */
+  function filterCustomers() {
+    const q = document.getElementById("searchCustomerInput").value.trim().toLowerCase();
+    const digits = q.replace(/\D/g, "");
+    renderTable(!q ? users : users.filter((u) =>
+      u.fullName.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      (digits && (u.phoneNumber || "").replace(/\D/g, "").includes(digits))));
+  }
 
-    tableBody.innerHTML = customers.map(c => `
-        <tr>
-            <td><strong>#${c.userId || c.id}</strong></td>
-            <td>${c.fullName || c.name || "N/A"}</td>
-            <td>${c.phoneNumber || c.contact || "N/A"}</td>
-            <td>${c.email || "N/A"}</td>
-            <td><span class="role-badge">${(c.role || "customer").toUpperCase()}</span></td>
-            <td>
-                <button onclick="prefillWalkIn('${escapeHtml(c.fullName || '')}', '${escapeHtml(c.phoneNumber || '')}', '${escapeHtml(c.email || '')}')" 
-                        style="background: #ff7700; color: #000; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
-                    Order for Customer
-                </button>
-            </td>
-        </tr>
-    `).join("");
-}
+  // ---------- Add customer ----------
 
-function filterCustomers(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-        renderCustomerTable(allCustomersCache);
-        return;
-    }
-    const filtered = allCustomersCache.filter(c => 
-        (c.fullName && c.fullName.toLowerCase().includes(q)) ||
-        (c.email && c.email.toLowerCase().includes(q)) ||
-        (c.phoneNumber && c.phoneNumber.includes(q))
-    );
-    renderCustomerTable(filtered);
-}
+  /** Generates a readable 10-character temporary password using the browser's secure random source. */
+  function generatePassword() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+    const bytes = crypto.getRandomValues(new Uint8Array(10));
+    document.getElementById("custPassword").value = Array.from(bytes, (b) => chars[b % chars.length]).join("");
+  }
 
-// Populate materials dropdown from API
-async function loadMaterialsForWalkIn() {
-    const select = document.getElementById("walkInMaterialSelect");
-    if (!select) return;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/materials`, {
-            headers: { "ngrok-skip-browser-warning": "69420" }
-        });
-        if (!response.ok) throw new Error("Materials failed");
-
-        loadedMaterials = await response.json();
-        select.innerHTML = `<option value="">-- Choose Vinyl Material --</option>` +
-            loadedMaterials.map(m => `
-                <option value="${m.materialId}" data-price="${m.unitPrice}">
-                    ${m.materialName} (${m.color}) - R ${Number(m.unitPrice).toFixed(2)}
-                </option>
-            `).join("");
-    } catch (err) {
-        console.error("Error loading materials:", err);
-        select.innerHTML = `<option value="">Failed to load materials</option>`;
-    }
-}
-
-function updateWalkInTotal() {
-    const select = document.getElementById("walkInMaterialSelect");
-    const qtyInput = document.getElementById("walkInQty");
-    const totalDisplay = document.getElementById("walkInTotalDisplay");
-
-    const selectedOption = select.options[select.selectedIndex];
-    const unitPrice = selectedOption ? parseFloat(selectedOption.getAttribute("data-price") || 0) : 0;
-    const qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 1;
-
-    const total = unitPrice * qty;
-    if (totalDisplay) {
-        totalDisplay.textContent = `Total: R ${total.toFixed(2)}`;
-    }
-}
-
-// Prefill walk-in card when clicking "Order for Customer"
-window.prefillWalkIn = function(name, contact, email) {
-    const nameField = document.getElementById("walkInName");
-    const contactField = document.getElementById("walkInContact");
-    const emailField = document.getElementById("walkInEmail");
-
-    if (nameField) nameField.value = name;
-    if (contactField) contactField.value = contact;
-    if (emailField) emailField.value = email;
-
-    nameField.scrollIntoView({ behavior: "smooth" });
-};
-
-// Add customer through API
-async function handleAddCustomer(e) {
-    e.preventDefault();
-
-    const fullName = document.getElementById("custFullName").value.trim();
-    const contact = document.getElementById("custContact").value.trim();
-    const email = document.getElementById("custEmail").value.trim();
-    const password = document.getElementById("custPassword").value;
-
-    const payload = {
-        fullName: fullName,
-        email: email,
-        phoneNumber: contact,
-        password: password
+  async function handleAddCustomer(event) {
+    event.preventDefault();
+    const statusBox = document.getElementById("addStatus");
+    const body = {
+      fullName: document.getElementById("custFullName").value.trim(),
+      phoneNumber: document.getElementById("custContact").value.trim(),
+      email: document.getElementById("custEmail").value.trim(),
+      password: document.getElementById("custPassword").value,
     };
+    if (!body.fullName || !body.phoneNumber || !body.email) return status(statusBox, "Fill in name, contact number and email.", "error");
+    if (body.password.length < 6) return status(statusBox, "The temporary password must be at least 6 characters (use Generate).", "error");
 
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "69420"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-            alert(`Customer ${fullName} added successfully to database!`);
-            document.getElementById("addCustomerForm").reset();
-            loadCustomers();
-        } else {
-            const data = await response.json();
-            alert(`Failed to add customer: ${data.message || 'Error occurred'}`);
-        }
-    } catch (err) {
-        console.error("Registration error:", err);
-        alert("Network error connecting to API.");
+      // auth:false - registering must not send the staff member's own token.
+      const created = await LSP.api.fetch("/auth/register", { method: "POST", body, auth: false });
+      LSP.log("Customers", "info", `Customer ${created.userId} added.`);
+      status(statusBox, `${created.fullName} added (customer #${created.userId}). Give them their temporary password.`, "success");
+      event.target.reset();
+      await loadCustomers();
+      customerSelect.value = String(created.userId);
+    } catch (e) {
+      status(statusBox, e.message, "error");
     }
-}
+  }
 
-// Create walk-in order through API
-async function handleWalkInOrder(e) {
-    e.preventDefault();
+  // ---------- Walk-in order ----------
 
-    const select = document.getElementById("walkInMaterialSelect");
-    const qtyInput = document.getElementById("walkInQty");
-    const designInput = document.getElementById("walkInDesign");
+  /** Fills the walk-in customer dropdown (customers first, then staff accounts). */
+  function fillCustomerSelect() {
+    const current = customerSelect.value;
+    clear(customerSelect);
+    customerSelect.append(el("option", { text: "Choose a customer...", attrs: { value: "" } }));
+    [...users].sort((a, b) => (a.role === b.role ? a.fullName.localeCompare(b.fullName) : a.role === "customer" ? -1 : 1))
+      .forEach((u) => customerSelect.append(el("option", {
+        text: `${u.fullName} - ${u.phoneNumber || u.email}`, attrs: { value: u.userId },
+      })));
+    customerSelect.value = current;
+  }
 
-    if (!select.value) {
-        alert("Please pick a vinyl material first.");
-        return;
+  /** Loads materials for the walk-in dropdown. */
+  async function loadMaterials() {
+    try {
+      materials = await LSP.api.fetch("/materials");
+      clear(materialSelect);
+      materialSelect.append(el("option", { text: "Choose a material...", attrs: { value: "" } }));
+      materials.forEach((m) => materialSelect.append(el("option", {
+        text: `${m.materialName} (${m.color}) - ${LSP.format.money(m.unitPrice)} - ${m.stockQuantity} ${m.unitMeasure} left`,
+        attrs: { value: m.materialId, disabled: m.stockQuantity <= 0 },
+      })));
+    } catch (e) {
+      status(document.getElementById("walkInStatus"), `Couldn't load materials: ${e.message}`, "error");
     }
+  }
 
-    const payload = {
-        userId: 1, // Attaches to primary walk-in counter customer
-        orderType: "walk-in",
-        items: [
-            {
-                designName: designInput ? designInput.value : "Workshop Walk-in",
-                materialId: parseInt(select.value, 10),
-                quantity: parseInt(qtyInput ? qtyInput.value : 1, 10)
-            }
-        ]
-    };
+  /** Shows the walk-in total from the selected material's price. */
+  function updateWalkInTotal() {
+    const m = materials.find((x) => String(x.materialId) === materialSelect.value);
+    const qty = Math.max(0, parseInt(qtyInput.value, 10) || 0);
+    document.getElementById("walkInTotalDisplay").textContent = LSP.format.money(m ? m.unitPrice * qty : 0);
+  }
+
+  /** From the table's "New walk-in order" button: preselect the customer and jump to the form. */
+  function startWalkIn(userId) {
+    customerSelect.value = String(userId);
+    document.getElementById("walkInCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("walkInDesign").focus({ preventScroll: true });
+  }
+
+  async function handleWalkInOrder(event) {
+    event.preventDefault();
+    const statusBox = document.getElementById("walkInStatus");
+    const userId = Number(customerSelect.value);
+    const designName = document.getElementById("walkInDesign").value.trim();
+    const materialId = Number(materialSelect.value);
+    const quantity = parseInt(qtyInput.value, 10);
+
+    if (!userId) return status(statusBox, "Choose the customer this order is for.", "error");
+    if (!designName) return status(statusBox, "Enter a design name.", "error");
+    if (!materialId) return status(statusBox, "Choose a material.", "error");
+    if (!quantity || quantity < 1) return status(statusBox, "Quantity must be at least 1.", "error");
 
     try {
-        const response = await fetch(`${API_BASE_URL}/orders`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "69420"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            alert(`Walk-In Order Placed!\n\nOrder Ref: ${result.orderRef}\nTotal: R ${Number(result.total).toFixed(2)}`);
-            document.getElementById("walkInOrderForm").reset();
-            updateWalkInTotal();
-        } else {
-            alert(`Order creation failed: ${result.message || 'Error'}`);
-        }
-    } catch (err) {
-        console.error("Order error:", err);
-        alert("Failed to reach API server.");
+      const result = await LSP.api.fetch("/orders", {
+        method: "POST",
+        body: { userId, orderType: "walk_in", items: [{ designName, materialId, quantity }] },
+      });
+      LSP.log("Orders", "info", `Walk-in order ${result.orderRef} for user ${userId}.`);
+      status(statusBox, `Walk-in order ${result.orderRef} created - total ${LSP.format.money(result.total)}. The customer can track it with this reference.`, "success");
+      event.target.reset();
+      await loadMaterials(); // stock has changed
+      updateWalkInTotal();
+    } catch (e) {
+      status(statusBox, e.message, "error");
     }
-}
+  }
 
-function escapeHtml(str) {
-    return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-}
+  // ---------- Wire up ----------
+
+  document.getElementById("addCustomerForm").addEventListener("submit", handleAddCustomer);
+  document.getElementById("generatePassword").addEventListener("click", generatePassword);
+  document.getElementById("walkInOrderForm").addEventListener("submit", handleWalkInOrder);
+  materialSelect.addEventListener("change", updateWalkInTotal);
+  qtyInput.addEventListener("input", updateWalkInTotal);
+  document.getElementById("searchCustomerInput").addEventListener("input", filterCustomers);
+  document.getElementById("showAllCustomersBtn").addEventListener("click", () => {
+    document.getElementById("searchCustomerInput").value = "";
+    renderTable(users);
+  });
+
+  generatePassword();
+  loadCustomers();
+  loadMaterials();
+})();

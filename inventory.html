@@ -1,119 +1,59 @@
 <!DOCTYPE html>
+<!-- Staff: vinyl stock levels, low-stock alerts, adding materials and adjusting stock. -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management - Legacies Screen Printers</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* Table styles tailored to match the dark theme */
-        .inventory-card {
-            background-color: #1e1e24;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px auto;
-            max-width: 1100px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-        .inventory-card h2 {
-            color: #ff7700;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-            color: #e0e0e0;
-            text-align: left;
-        }
-        .styled-table thead tr {
-            background-color: #2b2b36;
-            color: #ff9933;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-        }
-        .styled-table th, .styled-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #33333f;
-        }
-        .styled-table tbody tr:hover {
-            background-color: #262633;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .badge-instock {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-        }
-        .badge-lowstock {
-            background-color: rgba(231, 76, 60, 0.15);
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-        .nav-header {
-            max-width: 1100px;
-            margin: 20px auto 10px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-header a {
-            color: #ff7700;
-            text-decoration: none;
-            font-weight: bold;
-            margin-left: 15px;
-        }
-        .nav-header a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; connect-src 'self' http://localhost:5000 https://*.azurewebsites.net; img-src 'self' data:">
+  <title>Inventory - Legacies Screen Printers staff</title>
+  <link rel="icon" href="images/LegaciesSP_Image.jpg">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body style="background-color: #121216; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px;">
+<body data-portal="staff">
+  <header id="siteHeader"></header>
 
-    <div class="nav-header">
-        <h1 style="color: #ff7700; margin: 0;">Inventory Management</h1>
-        <div>
-            <a href="orders.html">Orders</a>
-            <a href="order_search.html">Track Order</a>
-            <a href="customers_order.html">Place Order</a>
+  <main>
+    <h1>Inventory</h1>
+    <p class="page-intro">Stock goes down automatically when an order is placed. Record deliveries and corrections here; materials at or below their threshold are flagged.</p>
+
+    <section class="card">
+      <h2>Current stock</h2>
+      <p id="inventoryStatus" class="status" role="status" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table class="responsive">
+          <thead>
+            <tr><th>ID</th><th>Material</th><th>Colour</th><th class="num">Price</th><th class="num">In stock</th><th class="num">Alert at</th><th>Status</th><th>Adjust stock</th></tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Add a material</h2>
+      <form id="addMaterialForm" novalidate>
+        <div class="form-row cols-2-1-1">
+          <div><label for="matName">Material name</label><input type="text" id="matName" required maxlength="100" placeholder="e.g. Glitter Vinyl"></div>
+          <div><label for="matColor">Colour</label><input type="text" id="matColor" required maxlength="50" placeholder="e.g. Rose Gold"></div>
+          <div><label for="matUnit">Unit</label><input type="text" id="matUnit" value="meters" maxlength="20"></div>
         </div>
-    </div>
-
-    <!-- Current Inventory Table -->
-    <div class="inventory-card">
-        <h2>Current Inventory</h2>
-        <div style="overflow-x: auto;">
-            <table class="styled-table" id="inventoryTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Material Name</th>
-                        <th>Color</th>
-                        <th>Unit Price</th>
-                        <th>Stock Available</th>
-                        <th>Threshold</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody">
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: #aaa; padding: 30px;">
-                            Loading materials from database...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="form-row cols-3">
+          <div><label for="matPrice">Price per unit (R)</label><input id="matPrice" type="number" min="0.01" step="0.01" required></div>
+          <div><label for="matStock">Opening stock</label><input id="matStock" type="number" min="0" step="1" value="0" required></div>
+          <div><label for="matThreshold">Low-stock alert at</label><input id="matThreshold" type="number" min="0" step="1" value="15" required></div>
         </div>
-    </div>
+        <div class="actions"><button type="submit">Add material</button></div>
+      </form>
+      <p id="addMaterialStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
 
-    <script src="js/inventory.js"></script>
+  <footer id="siteFooter"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/inventory.js"></script>
 </body>
 </html>

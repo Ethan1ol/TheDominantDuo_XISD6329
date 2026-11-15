@@ -1,255 +1,89 @@
 <!DOCTYPE html>
+<!-- Staff: customer list and search, add a customer, record a phone or walk-in order. -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Management - Legacies Screen Printers</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            background-color: #0f0f13;
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 24px;
-        }
-        h1 {
-            color: #ff7700;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .nav-links {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .nav-links a {
-            color: #ff8822;
-            text-decoration: none;
-            margin: 0 12px;
-            font-weight: 600;
-        }
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1.3fr 1fr;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto 30px auto;
-        }
-        .card {
-            background-color: #1a1a22;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        .card h2 {
-            color: #ff7700;
-            font-size: 1.25rem;
-            margin-top: 0;
-            margin-bottom: 16px;
-        }
-        .card h3 {
-            color: #ddd;
-            font-size: 1rem;
-            margin: 12px 0 8px 0;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        .input-field {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 6px;
-            border: 1px solid #2e2e3a;
-            background-color: #121217;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 0.9rem;
-        }
-        .input-field:focus {
-            outline: none;
-            border-color: #ff7700;
-        }
-        .btn-orange {
-            width: 100%;
-            background-color: #ff7700;
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 11px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 8px;
-            font-size: 0.95rem;
-            transition: background-color 0.2s;
-        }
-        .btn-orange:hover {
-            background-color: #e66a00;
-        }
-        .btn-secondary {
-            background-color: #2b2b38;
-            color: #fff;
-            margin-top: 8px;
-        }
-        .btn-secondary:hover {
-            background-color: #3b3b4d;
-        }
-        .nested-box {
-            background-color: #14141a;
-            border: 1px solid #2a2a36;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 12px;
-        }
-        .table-card {
-            background-color: #1a1a22;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            margin-top: 10px;
-        }
-        .styled-table thead tr {
-            border-bottom: 2px solid #2f2f3d;
-            color: #8f8f9f;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-        .styled-table th, .styled-table td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #262633;
-        }
-        .styled-table tbody tr:hover {
-            background-color: #20202b;
-        }
-        .role-badge {
-            background-color: #262638;
-            color: #ff9933;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; connect-src 'self' http://localhost:5000 https://*.azurewebsites.net; img-src 'self' data:">
+  <title>Customers - Legacies Screen Printers staff</title>
+  <link rel="icon" href="images/LegaciesSP_Image.jpg">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-portal="staff">
+  <header id="siteHeader"></header>
 
-    <h1>Customer Management</h1>
+  <main>
+    <h1>Customers</h1>
+    <p class="page-intro">Find a customer, add someone who phoned or walked in, and record their order at the counter.</p>
 
-    <div class="nav-links">
-        <a href="inventory.html">Inventory</a>
-        <a href="orders.html">Orders</a>
-        <a href="order_search.html">Track Order</a>
-        <a href="customers_order.html">Place Order</a>
-    </div>
+    <div class="grid grid-2 align-start">
+      <section class="card">
+        <h2>Add a customer</h2>
+        <form id="addCustomerForm" novalidate>
+          <label for="custFullName">Full name</label>
+          <input type="text" id="custFullName" required maxlength="100">
+          <label for="custContact">Contact number</label>
+          <input id="custContact" type="tel" required maxlength="20">
+          <label for="custEmail">Email</label>
+          <input id="custEmail" type="email" required maxlength="120">
+          <label for="custPassword">Temporary password (give it to the customer to change)</label>
+          <div class="form-row cols-1-auto">
+            <input id="custPassword" type="text" required minlength="6" autocomplete="off">
+            <button id="generatePassword" type="button" class="button-secondary">Generate</button>
+          </div>
+          <div class="actions"><button type="submit">Add customer</button></div>
+        </form>
+        <p id="addStatus" class="status" role="status" aria-live="polite"></p>
+      </section>
 
-    <div class="grid-container">
-        <!-- Card 1: Add Customer -->
-        <div class="card">
-            <h2>Add Customer</h2>
-            <form id="addCustomerForm">
-                <div class="form-group">
-                    <input type="text" id="custFullName" class="input-field" placeholder="Full Name" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="custContact" class="input-field" placeholder="Contact Number" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="custEmail" class="input-field" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="custPassword" class="input-field" placeholder="Temporary Password" value="Password123!" required>
-                </div>
-                <button type="submit" class="btn-orange">Add Customer</button>
-            </form>
-        </div>
-
-        <!-- Card 2: Phone / Walk-in Order -->
-        <div class="card">
-            <h2>Phone / Walk-in Order</h2>
-            <form id="walkInOrderForm">
-                <h3>Customer Details</h3>
-                <div class="form-group">
-                    <input type="text" id="walkInName" class="input-field" placeholder="Customer Name" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="walkInContact" class="input-field" placeholder="Contact Number" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="walkInEmail" class="input-field" placeholder="Email" required>
-                </div>
-
-                <h3>Order Details</h3>
-                <div class="nested-box">
-                    <strong style="color: #ff9933; font-size: 0.9rem;">Design Item</strong>
-                    <div class="form-group" style="margin-top: 8px;">
-                        <input type="text" id="walkInDesign" class="input-field" placeholder="Design Name" value="Custom Workshop Print" required>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 0.8rem; color: #888;">Material</label>
-                        <select id="walkInMaterialSelect" class="input-field" required>
-                            <option value="">Loading vinyl materials...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 0.8rem; color: #888;">Quantity</label>
-                        <input type="number" id="walkInQty" class="input-field" min="1" value="1" required>
-                    </div>
-                </div>
-
-                <div style="font-weight: bold; color: #ff9933; margin: 10px 0;" id="walkInTotalDisplay">
-                    Total: R 0.00
-                </div>
-
-                <button type="submit" class="btn-orange">Create Order</button>
-            </form>
-        </div>
-
-        <!-- Card 3: Search Customer -->
-        <div class="card">
-            <h2>Search Customer</h2>
-            <div class="form-group">
-                <input type="text" id="searchCustomerInput" class="input-field" placeholder="Search name or contact...">
+      <section class="card" id="walkInCard">
+        <h2>Phone or walk-in order</h2>
+        <form id="walkInOrderForm" novalidate>
+          <label for="walkInCustomer">Customer</label>
+          <select id="walkInCustomer" required><option value="">Loading customers...</option></select>
+          <label for="walkInDesign">Design name or description</label>
+          <input type="text" id="walkInDesign" required maxlength="100" placeholder="e.g. Shop window lettering">
+          <div class="form-row cols-3-1">
+            <div>
+              <label for="walkInMaterialSelect">Vinyl material</label>
+              <select id="walkInMaterialSelect" required><option value="">Loading materials...</option></select>
             </div>
-            <button id="searchCustomerBtn" type="button" class="btn-orange">Search</button>
-            <button id="showAllCustomersBtn" type="button" class="btn-orange btn-secondary">Show All</button>
-        </div>
+            <div>
+              <label for="walkInQty">Quantity</label>
+              <input id="walkInQty" type="number" min="1" step="1" value="1" required>
+            </div>
+          </div>
+          <div class="order-total"><span>Total</span><strong id="walkInTotalDisplay">R 0.00</strong></div>
+          <div class="actions"><button type="submit">Create walk-in order</button></div>
+        </form>
+        <p id="walkInStatus" class="status" role="status" aria-live="polite"></p>
+      </section>
     </div>
 
-    <!-- Bottom Customers Table -->
-    <div class="table-card">
-        <h2 style="color: #ff7700; margin-top: 0;">Customers</h2>
-        <div style="overflow-x: auto;">
-            <table class="styled-table" id="customersTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Contact</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="customersTableBody">
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
-                            Loading registered customers from database...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <section class="card mt">
+      <div class="form-row cols-1-auto">
+        <div>
+          <label for="searchCustomerInput">Search by name, email or phone</label>
+          <input id="searchCustomerInput" type="search" placeholder="Start typing...">
         </div>
-    </div>
+        <button id="showAllCustomersBtn" type="button" class="button-secondary">Show all</button>
+      </div>
+      <p id="listStatus" class="status" role="status"></p>
+      <div class="table-wrap mt-sm">
+        <table class="responsive">
+          <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Email</th><th>Role</th><th>Joined</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+          <tbody id="customersTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-    <script src="js/customerSearch.js"></script>
+  <footer id="siteFooter"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/customerSearch.js"></script>
 </body>
 </html>

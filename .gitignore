@@ -1,0 +1,13 @@
+# Dependencies installed only to run tooling scripts (never commit them)
+node_modules/
+package-lock.json
+package.json
+
+# GitHub Pages build folder created by the workflow
+_site/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
